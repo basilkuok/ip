@@ -1,6 +1,6 @@
-# Duke User Guide
+# Jarvis User Guide
 
-// Update the title above to match the actual product name
+// Update the title above to match the actual product name (done)
 
 // Product screenshot goes here
 
