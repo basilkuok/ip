@@ -44,7 +44,7 @@ ____________________________________________________________
  Now you have 6 tasks in the list.
 ____________________________________________________________
 ____________________________________________________________
- Sorry, I don't know what that means. Valid command starts with: todo, deadline, event, list, mark, unmark, bye.
+ Sorry, I don't know what that means. Valid command starts with: todo, deadline, event, list, mark, unmark, delete, bye.
 ____________________________________________________________
 ____________________________________________________________
  Here are the tasks in your list:
@@ -79,6 +79,31 @@ ____________________________________________________________
  4.[T][X] join sports club
  5.[D][ ] submit report (by: 11/10/2019 5pm)
  6.[E][X] orientation week (from: 4/10/2019 to: 11/10/2019)
+____________________________________________________________
+____________________________________________________________
+ Noted. I've removed this task:
+  [E][ ] project meeting (from: Mon 2pm to: 4pm)
+ Now you have 5 tasks in the list.
+____________________________________________________________
+____________________________________________________________
+ Here are the tasks in your list:
+ 1.[T][ ] borrow book
+ 2.[D][ ] return book (by: Sunday)
+ 3.[T][X] join sports club
+ 4.[D][ ] submit report (by: 11/10/2019 5pm)
+ 5.[E][X] orientation week (from: 4/10/2019 to: 11/10/2019)
+____________________________________________________________
+____________________________________________________________
+ Noted. I've removed this task:
+  [T][ ] borrow book
+ Now you have 4 tasks in the list.
+____________________________________________________________
+____________________________________________________________
+ Here are the tasks in your list:
+ 1.[D][ ] return book (by: Sunday)
+ 2.[T][X] join sports club
+ 3.[D][ ] submit report (by: 11/10/2019 5pm)
+ 4.[E][X] orientation week (from: 4/10/2019 to: 11/10/2019)
 ____________________________________________________________
 ____________________________________________________________
  Bye. Hope to see you again soon!

@@ -1,12 +1,14 @@
+import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
- * Runs Jarvis Level-5, an intelligent chatbot that supports todos, deadlines, and events.
+ * Runs Jarvis Level-6, an intelligent chatbot that supports todos, deadlines, events, and deleting tasks.
  */
 public class Jarvis {
     private static final int MAX_TASKS = 100;
     private static final String UNKNOWN_COMMAND_MESSAGE =
-            "Sorry, I don't know what that means. Valid command starts with: todo, deadline, event, list, mark, unmark, bye.";
+            "Sorry, I don't know what that means. Valid command starts with: "
+                    + "todo, deadline, event, list, mark, unmark, delete, bye.";
 
     /**
      * Starts Jarvis, reads commands from standard input, and exits on {@code bye}.
@@ -20,8 +22,7 @@ public class Jarvis {
         System.out.println(" Tell me what's in your mind and I will echo back to you.");
         System.out.println(horizontalLine);
 
-        Task[] tasks = new Task[MAX_TASKS];
-        int taskCount = 0;
+        ArrayList<Task> tasks = new ArrayList<>();
 
         try (Scanner input = new Scanner(System.in)) {
             while (input.hasNextLine()) {
@@ -38,7 +39,7 @@ public class Jarvis {
                 System.out.println(horizontalLine);
 
                 try {
-                    taskCount = executeCommand(trimmedCommand, tasks, taskCount);
+                    executeCommand(trimmedCommand, tasks);
                 } catch (JarvisException exception) {
                     System.out.println(" " + exception.getMessage());
                 }
@@ -48,7 +49,7 @@ public class Jarvis {
         }
     }
 
-    private static int executeCommand(String command, Task[] tasks, int taskCount) throws JarvisException {
+    private static void executeCommand(String command, ArrayList<Task> tasks) throws JarvisException {
         if (command.isEmpty()) {
             throw new JarvisException("Please enter a command.");
         }
@@ -56,70 +57,86 @@ public class Jarvis {
         String lower = command.toLowerCase();
         if (lower.equals("list")) {
             System.out.println(" Here are the tasks in your list:");
-            for (int i = 0; i < taskCount; i++) {
-                System.out.println(" " + (i + 1) + "." + tasks[i]);
+            for (int i = 0; i < tasks.size(); i++) {
+                System.out.println(" " + (i + 1) + "." + tasks.get(i));
             }
-            return taskCount;
+            return;
         }
 
         if (lower.startsWith("mark")) {
-            Task task = getTaskForIndex(command, tasks, taskCount);
+            Task task = getTaskForIndex(command, tasks);
             task.markAsDone();
             System.out.println(" Nice! I've marked this task as done:");
             System.out.println("  " + task);
-            return taskCount;
+            return;
         }
 
         if (lower.startsWith("unmark")) {
-            Task task = getTaskForIndex(command, tasks, taskCount);
+            Task task = getTaskForIndex(command, tasks);
             task.markAsNotDone();
             System.out.println(" OK, I've marked this task as not done yet:");
             System.out.println("  " + task);
-            return taskCount;
+            return;
+        }
+
+        if (lower.startsWith("delete")) {
+            int taskNumber = parseTaskNumber(command);
+            if (!isValidTaskNumber(taskNumber, tasks.size())) {
+                throw new JarvisException("Please enter a valid task number.");
+            }
+
+            Task removed = tasks.remove(taskNumber - 1);
+            System.out.println(" Noted. I've removed this task:");
+            System.out.println("  " + removed);
+            int remainingTasks = tasks.size();
+            System.out.println(" Now you have " + remainingTasks + " "
+                    + pluralize("task", remainingTasks) + " in the list.");
+            return;
         }
 
         if (lower.startsWith("todo")) {
             String description = parseTodoDescription(command);
             Task task = new Todo(description);
-            return addTask(tasks, taskCount, task);
+            addTask(tasks, task);
+            return;
         }
 
         if (lower.startsWith("deadline")) {
             ParsedDeadline parsed = parseDeadline(command);
             Task task = new Deadline(parsed.description, parsed.by);
-            return addTask(tasks, taskCount, task);
+            addTask(tasks, task);
+            return;
         }
 
         if (lower.startsWith("event")) {
             ParsedEvent parsed = parseEvent(command);
             Task task = new Event(parsed.description, parsed.from, parsed.to);
-            return addTask(tasks, taskCount, task);
+            addTask(tasks, task);
+            return;
         }
 
         throw new JarvisException(UNKNOWN_COMMAND_MESSAGE);
     }
 
-    private static Task getTaskForIndex(String command, Task[] tasks, int taskCount) throws JarvisException {
+    private static Task getTaskForIndex(String command, ArrayList<Task> tasks) throws JarvisException {
         int taskNumber = parseTaskNumber(command);
-        if (!isValidTaskNumber(taskNumber, taskCount)) {
+        if (!isValidTaskNumber(taskNumber, tasks.size())) {
             throw new JarvisException("Please enter a valid task number.");
         }
-        return tasks[taskNumber - 1];
+        return tasks.get(taskNumber - 1);
     }
 
-    private static int addTask(Task[] tasks, int taskCount, Task task) throws JarvisException {
-        if (taskCount >= MAX_TASKS) {
+    private static void addTask(ArrayList<Task> tasks, Task task) throws JarvisException {
+        if (tasks.size() >= MAX_TASKS) {
             throw new JarvisException("Sorry, I can only store " + MAX_TASKS + " tasks.");
         }
 
-        tasks[taskCount] = task;
-        taskCount++;
+        tasks.add(task);
 
         System.out.println(" Got it. I've added this task:");
         System.out.println("  " + task);
-        System.out.println(" Now you have " + taskCount + " " + pluralize("task", taskCount) + " in the list.");
-
-        return taskCount;
+        int numberOfTasks = tasks.size();
+        System.out.println(" Now you have " + numberOfTasks + " " + pluralize("task", numberOfTasks) + " in the list.");
     }
 
     private static int parseTaskNumber(String command) {
