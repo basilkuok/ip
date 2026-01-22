@@ -1,30 +1,69 @@
 # Jarvis User Guide
 
-// Update the title above to match the actual product name (done)
-
 // Product screenshot goes here
 
-// Product intro goes here
+Jarvis Level-2 is a chatbot that helps you keep track of things by storing items you type and showing them back to you on request.
 
-## Adding deadlines
+## Getting Started
 
-// Describe the action and its outcome.
+Run the app Jarvis.java, then type commands into standard input.
 
-// Give examples of usage
+To exit, type `bye`.
 
-Example: `keyword (optional arguments)`
+## Below are what you can ask Jarvis Level-2 to do
 
-// A description of the expected outcome goes here
+### Add an item 
 
+Type any text that is not `list` or `bye` to store it.
+
+Example input by you:
 ```
-expected output
+read book
 ```
 
-## Feature ABC
+Example output by Jarvis Level-2:
+```
+____________________________________________________________
+ added: read book
+____________________________________________________________
+```
 
-// Feature details
+### List all stored items
+
+Use `list` to ask Jarvis Level-2 to show all stored items, numbered from 1.
+
+Example input by you:
+```
+list
+```
+
+Example output by Jarvis Level-2:
+```
+____________________________________________________________
+ 1. read book
+ 2. return book
+____________________________________________________________
+```
+
+### Exit
+
+Use `bye` to exit the chat.
+
+Example output by Jarvis Level-2:
+```
+____________________________________________________________
+ Bye. Hope to see you again soon!
+____________________________________________________________
+```
+
+## Notes
+
+- Items are stored in memory only (they are not saved to disk).
+- Maximum number of stored items is 100.
 
 
-## Feature XYZ
 
-// Feature details
+
+
+
+

@@ -1,6 +1,15 @@
 import java.util.Scanner;
 
+/**
+ * Runs Jarvis Level-2, an intelligent chatbot that stores user-specified input text and list it back.
+ */
 public class Jarvis {
+    private static final int MAX_TASKS = 100;
+
+    /**
+     * Starts Jarvis Level-2, reads commands from user-specified input, stores entered text, lists it on {@code list},
+     * and exits on {@code bye}.
+     */
     public static void main(String[] args) {
         String horizontalLine = "____________________________________________________________";
         System.out.println(horizontalLine);
@@ -10,22 +19,37 @@ public class Jarvis {
         System.out.println(" Tell me what's in your mind and I will echo back to you.");
         System.out.println(horizontalLine);
 
-        Scanner input = new Scanner(System.in);
-        while (input.hasNextLine()) {
-            String echo = input.nextLine();
-            if (echo.trim().equalsIgnoreCase("bye")) {
+        String[] tasks = new String[MAX_TASKS];
+        int taskCount = 0;
+
+        try (Scanner input = new Scanner(System.in)) {
+            while (input.hasNextLine()) {
+                String echo = input.nextLine();
+                String trimmedEcho = echo.trim();
+
+                if (trimmedEcho.equalsIgnoreCase("bye")) {
+                    System.out.println(horizontalLine);
+                    System.out.println(" Bye. Hope to see you again soon!");
+                    System.out.println(horizontalLine);
+                    return;
+                }
+
                 System.out.println(horizontalLine);
-                System.out.println(" Bye. Hope to see you again soon!");
+
+                if (trimmedEcho.equalsIgnoreCase("list")) {
+                    for (int i = 0; i < taskCount; i++) {
+                        System.out.println(" " + (i + 1) + ". " + tasks[i]);
+                    }
+                } else {
+                    if (taskCount < MAX_TASKS) {
+                        tasks[taskCount] = echo;
+                        taskCount++;
+                    }
+                    System.out.println(" added: " + echo);
+                }
+
                 System.out.println(horizontalLine);
-                return;
             }
-
-            System.out.println(horizontalLine);
-            System.out.println(" " + echo);
-            System.out.println(horizontalLine);
-        }
-
-
-        
+        }       
     }
 }
