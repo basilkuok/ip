@@ -1,9 +1,13 @@
 todo borrow book
+todo
 deadline return book /by Sunday
+deadline return book
 event project meeting /from Mon 2pm /to 4pm
+event project meeting /from Mon 2pm
 todo join sports club
 deadline submit report /by 11/10/2019 5pm
 event orientation week /from 4/10/2019 /to 11/10/2019
+blah
 list
 mark 2
 unmark 2
