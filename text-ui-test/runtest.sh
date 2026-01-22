@@ -22,9 +22,14 @@ fi
 # run the program, feed commands from input.txt file and redirect the output to the ACTUAL.TXT
 java -classpath ../bin Jarvis < input.txt > ACTUAL.TXT
 
-# convert to UNIX format
+# convert to UNIX format, mormalize line endings to avoid false failures
 cp EXPECTED.TXT EXPECTED-UNIX.TXT
-dos2unix ACTUAL.TXT EXPECTED-UNIX.TXT
+if command -v dos2unix >/dev/null 2>&1
+then
+    dos2unix ACTUAL.TXT EXPECTED-UNIX.TXT
+else
+    perl -pi -e 's/\r$//' ACTUAL.TXT EXPECTED-UNIX.TXT
+fi
 
 # compare the output to the expected output
 diff ACTUAL.TXT EXPECTED-UNIX.TXT
