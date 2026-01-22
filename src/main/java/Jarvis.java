@@ -10,6 +10,17 @@ public class Jarvis {
             "Sorry, I don't know what that means. Valid command starts with: "
                     + "todo, deadline, event, list, mark, unmark, delete, bye.";
 
+    private enum CommandType {
+        LIST,
+        MARK,
+        UNMARK,
+        DELETE,
+        TODO,
+        DEADLINE,
+        EVENT,
+        UNKNOWN
+    }
+
     /**
      * Starts Jarvis, reads commands from standard input, and exits on {@code bye}.
      */
@@ -54,32 +65,29 @@ public class Jarvis {
             throw new JarvisException("Please enter a command.");
         }
 
-        String lower = command.toLowerCase();
-        if (lower.equals("list")) {
+        CommandType commandType = parseCommandType(command);
+        switch (commandType) {
+        case LIST:
             System.out.println(" Here are the tasks in your list:");
             for (int i = 0; i < tasks.size(); i++) {
                 System.out.println(" " + (i + 1) + "." + tasks.get(i));
             }
             return;
-        }
-
-        if (lower.startsWith("mark")) {
+        case MARK: {
             Task task = getTaskForIndex(command, tasks);
             task.markAsDone();
             System.out.println(" Nice! I've marked this task as done:");
             System.out.println("  " + task);
             return;
         }
-
-        if (lower.startsWith("unmark")) {
+        case UNMARK: {
             Task task = getTaskForIndex(command, tasks);
             task.markAsNotDone();
             System.out.println(" OK, I've marked this task as not done yet:");
             System.out.println("  " + task);
             return;
         }
-
-        if (lower.startsWith("delete")) {
+        case DELETE: {
             int taskNumber = parseTaskNumber(command);
             if (!isValidTaskNumber(taskNumber, tasks.size())) {
                 throw new JarvisException("Please enter a valid task number.");
@@ -93,29 +101,55 @@ public class Jarvis {
                     + pluralize("task", remainingTasks) + " in the list.");
             return;
         }
-
-        if (lower.startsWith("todo")) {
+        case TODO: {
             String description = parseTodoDescription(command);
             Task task = new Todo(description);
             addTask(tasks, task);
             return;
         }
-
-        if (lower.startsWith("deadline")) {
+        case DEADLINE: {
             ParsedDeadline parsed = parseDeadline(command);
             Task task = new Deadline(parsed.description, parsed.by);
             addTask(tasks, task);
             return;
         }
-
-        if (lower.startsWith("event")) {
+        case EVENT: {
             ParsedEvent parsed = parseEvent(command);
             Task task = new Event(parsed.description, parsed.from, parsed.to);
             addTask(tasks, task);
             return;
         }
+        case UNKNOWN:
+        default:
+            throw new JarvisException(UNKNOWN_COMMAND_MESSAGE);
+        }
+    }
 
-        throw new JarvisException(UNKNOWN_COMMAND_MESSAGE);
+    private static CommandType parseCommandType(String command) {
+        String trimmedCommand = command.trim();
+        int separatorIndex = trimmedCommand.indexOf(' ');
+        String keyword = (separatorIndex == -1)
+                ? trimmedCommand
+                : trimmedCommand.substring(0, separatorIndex);
+
+        switch (keyword.toLowerCase()) {
+        case "list":
+            return CommandType.LIST;
+        case "mark":
+            return CommandType.MARK;
+        case "unmark":
+            return CommandType.UNMARK;
+        case "delete":
+            return CommandType.DELETE;
+        case "todo":
+            return CommandType.TODO;
+        case "deadline":
+            return CommandType.DEADLINE;
+        case "event":
+            return CommandType.EVENT;
+        default:
+            return CommandType.UNKNOWN;
+        }
     }
 
     private static Task getTaskForIndex(String command, ArrayList<Task> tasks) throws JarvisException {
