@@ -1,14 +1,13 @@
 import java.util.Scanner;
 
 /**
- * Runs Jarvis Level-3, an intelligent chatbot that stores user-specified tasks, lists them back as requested, and marks tasks as done/undone.
+ * Runs Jarvis Level-4, an intelligent chatbot that allows you to mark tasks as done/undone, and supports todos, deadlines, and events.
  */
 public class Jarvis {
     private static final int MAX_TASKS = 100;
 
     /**
-     * Starts Jarvis Level-3, reads commands from standard input, stores entered tasks, lists it on {list},
-     * marks tasks on {mark <index>} / {unmark <index>}, and exits on {bye}.
+     * Starts Jarvis, reads commands from standard input, and exits on {@code bye}.
      */
     public static void main(String[] args) {
         String horizontalLine = "____________________________________________________________";
@@ -24,10 +23,10 @@ public class Jarvis {
 
         try (Scanner input = new Scanner(System.in)) {
             while (input.hasNextLine()) {
-                String echo = input.nextLine();
-                String trimmedEcho = echo.trim();
+                String fullCommand = input.nextLine();
+                String trimmedCommand = fullCommand.trim();
 
-                if (trimmedEcho.equalsIgnoreCase("bye")) {
+                if (trimmedCommand.equalsIgnoreCase("bye")) {
                     System.out.println(horizontalLine);
                     System.out.println(" Bye. Hope to see you again soon!");
                     System.out.println(horizontalLine);
@@ -36,42 +35,82 @@ public class Jarvis {
 
                 System.out.println(horizontalLine);
 
-                if (trimmedEcho.equalsIgnoreCase("list")) {
+                if (trimmedCommand.isEmpty()) {
+                    System.out.println(" Please enter a command.");
+                } else if (trimmedCommand.equalsIgnoreCase("list")) {
                     System.out.println(" Here are the tasks in your list:");
                     for (int i = 0; i < taskCount; i++) {
                         System.out.println(" " + (i + 1) + "." + tasks[i]);
                     }
-                } else if (trimmedEcho.toLowerCase().startsWith("mark ")) {
-                    int taskNumber = parseTaskNumber(trimmedEcho);
-                    if (isValidTaskNumber(taskNumber, taskCount)) {
-                        tasks[taskNumber - 1].markAsDone();
+                } else if (trimmedCommand.toLowerCase().startsWith("mark ")) {
+                    Task task = getTaskForIndex(trimmedCommand, tasks, taskCount);
+                    if (task != null) {
+                        task.markAsDone();
                         System.out.println(" Nice! I've marked this task as done:");
-                        System.out.println("  " + tasks[taskNumber - 1]);
-                    } else {
-                        System.out.println(" Please enter a valid task number.");
+                        System.out.println("  " + task);
                     }
-                } else if (trimmedEcho.toLowerCase().startsWith("unmark ")) {
-                    int taskNumber = parseTaskNumber(trimmedEcho);
-                    if (isValidTaskNumber(taskNumber, taskCount)) {
-                        tasks[taskNumber - 1].markAsNotDone();
+                } else if (trimmedCommand.toLowerCase().startsWith("unmark ")) {
+                    Task task = getTaskForIndex(trimmedCommand, tasks, taskCount);
+                    if (task != null) {
+                        task.markAsNotDone();
                         System.out.println(" OK, I've marked this task as not done yet:");
-                        System.out.println("  " + tasks[taskNumber - 1]);
+                        System.out.println("  " + task);
+                    }
+                } else if (trimmedCommand.toLowerCase().startsWith("todo ")) {
+                    String description = trimmedCommand.substring("todo ".length()).trim();
+                    if (description.isEmpty()) {
+                        System.out.println(" Please provide a description for the todo.");
                     } else {
-                        System.out.println(" Please enter a valid task number.");
+                        taskCount = addTask(tasks, taskCount, new Todo(description), horizontalLine);
+                    }
+                } else if (trimmedCommand.toLowerCase().startsWith("deadline ")) {
+                    ParsedDeadline parsed = parseDeadline(trimmedCommand);
+                    if (parsed == null) {
+                        System.out.println(" Please use: deadline <description> /by <time>");
+                    } else {
+                        Task task = new Deadline(parsed.description, parsed.by);
+                        taskCount = addTask(tasks, taskCount, task, horizontalLine);
+                    }
+                } else if (trimmedCommand.toLowerCase().startsWith("event ")) {
+                    ParsedEvent parsed = parseEvent(trimmedCommand);
+                    if (parsed == null) {
+                        System.out.println(" Please use: event <description> /from <start> /to <end>");
+                    } else {
+                        Task task = new Event(parsed.description, parsed.from, parsed.to);
+                        taskCount = addTask(tasks, taskCount, task, horizontalLine);
                     }
                 } else {
-                    if (taskCount >= MAX_TASKS) {
-                        System.out.println(" Sorry, I can only store " + MAX_TASKS + " tasks.");
-                    } else {
-                        tasks[taskCount] = new Task(trimmedEcho);
-                        taskCount++;
-                        System.out.println(" added: " + trimmedEcho);
-                    }
+                    taskCount = addTask(tasks, taskCount, new Todo(trimmedCommand), horizontalLine);
                 }
 
                 System.out.println(horizontalLine);
             }
-        }       
+        }
+    }
+
+    private static Task getTaskForIndex(String command, Task[] tasks, int taskCount) {
+        int taskNumber = parseTaskNumber(command);
+        if (!isValidTaskNumber(taskNumber, taskCount)) {
+            System.out.println(" Please enter a valid task number.");
+            return null;
+        }
+        return tasks[taskNumber - 1];
+    }
+
+    private static int addTask(Task[] tasks, int taskCount, Task task, String horizontalLine) {
+        if (taskCount >= MAX_TASKS) {
+            System.out.println(" Sorry, I can only store " + MAX_TASKS + " tasks.");
+            return taskCount;
+        }
+
+        tasks[taskCount] = task;
+        taskCount++;
+
+        System.out.println(" Got it. I've added this task:");
+        System.out.println("  " + task);
+        System.out.println(" Now you have " + taskCount + " " + pluralize("task", taskCount) + " in the list.");
+
+        return taskCount;
     }
 
     private static int parseTaskNumber(String command) {
@@ -89,5 +128,68 @@ public class Jarvis {
 
     private static boolean isValidTaskNumber(int taskNumber, int taskCount) {
         return taskNumber >= 1 && taskNumber <= taskCount;
+    }
+
+    private static String pluralize(String word, int count) {
+        if (count == 1) {
+            return word;
+        }
+        return word + "s";
+    }
+
+    private static ParsedDeadline parseDeadline(String command) {
+        String payload = command.substring("deadline ".length()).trim();
+        int byIndex = payload.indexOf(" /by ");
+        if (byIndex == -1) {
+            return null;
+        }
+
+        String description = payload.substring(0, byIndex).trim();
+        String by = payload.substring(byIndex + " /by ".length()).trim();
+        if (description.isEmpty() || by.isEmpty()) {
+            return null;
+        }
+
+        return new ParsedDeadline(description, by);
+    }
+
+    private static ParsedEvent parseEvent(String command) {
+        String payload = command.substring("event ".length()).trim();
+        int fromIndex = payload.indexOf(" /from ");
+        int toIndex = payload.indexOf(" /to ");
+        if (fromIndex == -1 || toIndex == -1 || fromIndex > toIndex) {
+            return null;
+        }
+
+        String description = payload.substring(0, fromIndex).trim();
+        String from = payload.substring(fromIndex + " /from ".length(), toIndex).trim();
+        String to = payload.substring(toIndex + " /to ".length()).trim();
+        if (description.isEmpty() || from.isEmpty() || to.isEmpty()) {
+            return null;
+        }
+
+        return new ParsedEvent(description, from, to);
+    }
+
+    private static class ParsedDeadline {
+        private final String description;
+        private final String by;
+
+        private ParsedDeadline(String description, String by) {
+            this.description = description;
+            this.by = by;
+        }
+    }
+
+    private static class ParsedEvent {
+        private final String description;
+        private final String from;
+        private final String to;
+
+        private ParsedEvent(String description, String from, String to) {
+            this.description = description;
+            this.from = from;
+            this.to = to;
+        }
     }
 }

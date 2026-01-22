@@ -10,7 +10,7 @@ public class Task {
     private static final String DONE_ICON = "X";
     private static final String TODO_ICON = " ";
 
-    private final String description;
+    protected final String description;
     private Status status;
 
     /**

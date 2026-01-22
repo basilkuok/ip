@@ -1,7 +1,13 @@
-read book
-return book
-buy bread
+todo borrow book
+deadline return book /by Sunday
+event project meeting /from Mon 2pm /to 4pm
+todo join sports club
+deadline submit report /by 11/10/2019 5pm
+event orientation week /from 4/10/2019 /to 11/10/2019
 list
 mark 2
 unmark 2
+mark 4
+mark 6
+list
 bye
