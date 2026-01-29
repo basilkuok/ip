@@ -1,3 +1,4 @@
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -33,7 +34,14 @@ public class Jarvis {
         System.out.println(" Tell me what's in your mind and I will echo back to you.");
         System.out.println(horizontalLine);
 
-        ArrayList<Task> tasks = new ArrayList<>();
+        Storage storage = new Storage(Path.of("data", "Jarvis.txt"));
+        ArrayList<Task> tasks;
+        try {
+            tasks = storage.loadTasks();
+        } catch (JarvisException exception) {
+            tasks = new ArrayList<>();
+            System.out.println(" " + exception.getMessage());
+        }
 
         try (Scanner input = new Scanner(System.in)) {
             while (input.hasNextLine()) {
@@ -50,7 +58,7 @@ public class Jarvis {
                 System.out.println(horizontalLine);
 
                 try {
-                    executeCommand(trimmedCommand, tasks);
+                    executeCommand(trimmedCommand, tasks, storage);
                 } catch (JarvisException exception) {
                     System.out.println(" " + exception.getMessage());
                 }
@@ -60,7 +68,7 @@ public class Jarvis {
         }
     }
 
-    private static void executeCommand(String command, ArrayList<Task> tasks) throws JarvisException {
+    private static void executeCommand(String command, ArrayList<Task> tasks, Storage storage) throws JarvisException {
         if (command.isEmpty()) {
             throw new JarvisException("Please enter a command.");
         }
@@ -76,6 +84,7 @@ public class Jarvis {
         case MARK: {
             Task task = getTaskForIndex(command, tasks);
             task.markAsDone();
+            storage.saveTasks(tasks);
             System.out.println(" Nice! I've marked this task as done:");
             System.out.println("  " + task);
             return;
@@ -83,6 +92,7 @@ public class Jarvis {
         case UNMARK: {
             Task task = getTaskForIndex(command, tasks);
             task.markAsNotDone();
+            storage.saveTasks(tasks);
             System.out.println(" OK, I've marked this task as not done yet:");
             System.out.println("  " + task);
             return;
@@ -94,6 +104,7 @@ public class Jarvis {
             }
 
             Task removed = tasks.remove(taskNumber - 1);
+            storage.saveTasks(tasks);
             System.out.println(" Noted. I've removed this task:");
             System.out.println("  " + removed);
             int remainingTasks = tasks.size();
@@ -104,19 +115,19 @@ public class Jarvis {
         case TODO: {
             String description = parseTodoDescription(command);
             Task task = new Todo(description);
-            addTask(tasks, task);
+            addTask(tasks, task, storage);
             return;
         }
         case DEADLINE: {
             ParsedDeadline parsed = parseDeadline(command);
             Task task = new Deadline(parsed.description, parsed.by);
-            addTask(tasks, task);
+            addTask(tasks, task, storage);
             return;
         }
         case EVENT: {
             ParsedEvent parsed = parseEvent(command);
             Task task = new Event(parsed.description, parsed.from, parsed.to);
-            addTask(tasks, task);
+            addTask(tasks, task, storage);
             return;
         }
         case UNKNOWN:
@@ -160,12 +171,13 @@ public class Jarvis {
         return tasks.get(taskNumber - 1);
     }
 
-    private static void addTask(ArrayList<Task> tasks, Task task) throws JarvisException {
+    private static void addTask(ArrayList<Task> tasks, Task task, Storage storage) throws JarvisException {
         if (tasks.size() >= MAX_TASKS) {
             throw new JarvisException("Sorry, I can only store " + MAX_TASKS + " tasks.");
         }
 
         tasks.add(task);
+        storage.saveTasks(tasks);
 
         System.out.println(" Got it. I've added this task:");
         System.out.println("  " + task);

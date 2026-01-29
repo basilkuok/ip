@@ -29,6 +29,13 @@ public class Task {
     }
 
     /**
+     * Returns whether this task is completed
+     */
+    public boolean isDone() {
+        return status == Status.DONE;
+    }
+
+    /**
      * Returns the task description.
      */
     public String getDescription() {

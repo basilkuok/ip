@@ -1,6 +1,6 @@
-# Jarvis project template
+# Jarvis Level-7
 
-This is a project template for a greenfield Java project. It's named after Tony Stack's intelligent personal assistant Jarvis. Given below are instructions on how to use it.
+This is a project template for a greenfield Java project. It's named after Tony Stack's intelligent personal assistant Jarvis. The chatbot supports todos, deadlines, events, and saving/loading tasks to/from disk. Given below are instructions on how to use it.
 
 ## Setting up in Intellij
 
@@ -22,5 +22,24 @@ Prerequisites: JDK 17, update Intellij to the most recent version.
     Bye. Hope to see you again soon!
    ____________________________________________________________
    ```
+
+## Level-7: Save / Load
+
+- Tasks are automatically saved whenever the task list changes (add/mark/unmark/delete).
+- Tasks are loaded from disk when Astra starts.
+- Data file path (relative to project root): `data/Jarvis.txt`
+  - The `data/` folder and the file are created automatically when needed.
+  - If the file does not exist yet, Astra starts with an empty list.
+  - If the file exists but is corrupted/unreadable, Astra starts with an empty list and the old file is backed up as `data/Jarvis.txt.corrupted*`.
+
+### Data file format
+
+Each task is stored on one line, with fields separated by tabs:
+
+- `TODO\t<0|1>\t<description>`
+- `DEADLINE\t<0|1>\t<description>\t<by>`
+- `EVENT\t<0|1>\t<description>\t<from>\t<to>`
+
+`0` means not done, `1` means done.
 
 **Warning:** Keep the `src\main\java` folder as the root folder for Java files (i.e., don't rename those folders or move Java files to another folder outside of this folder path), as this is the default location some tools (e.g., Gradle) expect to find Java files.
