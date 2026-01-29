@@ -39,3 +39,9 @@ shadowJar {
 run{
     standardInput = System.in
 }
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'jarvis.Jarvis'
+    }
+}
