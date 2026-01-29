@@ -1,306 +1,127 @@
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Scanner;
 
 /**
  * Runs Jarvis Level-8, an intelligent chatbot that supports todos, deadlines, events, and deleting tasks.
  */
 public class Jarvis {
-    private static final int MAX_TASKS = 100;
     private static final String UNKNOWN_COMMAND_MESSAGE =
             "Sorry, I don't know what that means. Valid command starts with: "
                     + "todo, deadline, event, list, mark, unmark, delete, bye.";
 
-    private enum CommandType {
-        LIST,
-        MARK,
-        UNMARK,
-        DELETE,
-        TODO,
-        DEADLINE,
-        EVENT,
-        UNKNOWN
+    private final Storage storage;
+    private final TaskList tasks;
+    private final Ui ui;
+    private final Parser parser;
+
+    /**
+     * Creates an Jarvis instance that reads/writes tasks from the given data file path.
+     */
+    public Jarvis(Path dataFilePathFromProjectRoot) {
+        ui = new Ui();
+        storage = new Storage(dataFilePathFromProjectRoot);
+        parser = new Parser();
+
+        TaskList loadedTasks;
+        try {
+            loadedTasks = new TaskList(storage.loadTasks());
+        } catch (JarvisException exception) {
+            ui.showLoadingError(exception.getMessage());
+            loadedTasks = new TaskList();
+        }
+        tasks = loadedTasks;
     }
 
     /**
-     * Starts Jarvis, reads commands from standard input, and exits on {@code bye}.
+     * Runs Jarvis, reads commands from standard input, and exits on {@code bye}.
      */
-    public static void main(String[] args) {
-        String horizontalLine = "____________________________________________________________";
-        System.out.println(horizontalLine);
-        System.out.println(" Hello! I'm Jarvis");
-        System.out.println(" I am your super-intelligent friend.");
-        System.out.println(" What can I do for you?");
-        System.out.println(" Tell me what's in your mind and I will echo back to you.");
-        System.out.println(horizontalLine);
-
-        Storage storage = new Storage(Path.of("data", "Jarvis.txt"));
-        ArrayList<Task> tasks;
-        try {
-            tasks = storage.loadTasks();
-        } catch (JarvisException exception) {
-            tasks = new ArrayList<>();
-            System.out.println(" " + exception.getMessage());
-        }
-
-        try (Scanner input = new Scanner(System.in)) {
-            while (input.hasNextLine()) {
-                String fullCommand = input.nextLine();
+    public void run() {
+        ui.showWelcome();
+        try (ui) {
+            while (ui.hasNextCommand()) {
+                String fullCommand = ui.readCommand();
                 String trimmedCommand = fullCommand.trim();
 
                 if (trimmedCommand.equalsIgnoreCase("bye")) {
-                    System.out.println(horizontalLine);
-                    System.out.println(" Bye. Hope to see you again soon!");
-                    System.out.println(horizontalLine);
+                    ui.showBye();
                     return;
                 }
 
-                System.out.println(horizontalLine);
-
+                ui.showLine();
                 try {
-                    executeCommand(trimmedCommand, tasks, storage);
+                    executeCommand(trimmedCommand);
                 } catch (JarvisException exception) {
-                    System.out.println(" " + exception.getMessage());
+                    ui.showError(exception.getMessage());
+                } finally {
+                    ui.showLine();
                 }
-
-                System.out.println(horizontalLine);
             }
         }
     }
 
-    private static void executeCommand(String command, ArrayList<Task> tasks, Storage storage) throws JarvisException {
+    /**
+     * Entry point for Jarvis.
+     */
+    public static void main(String[] args) {
+        new Jarvis(Path.of("data", "Jarvis.txt")).run();
+    }
+
+    private void executeCommand(String command) throws JarvisException {
         if (command.isEmpty()) {
             throw new JarvisException("Please enter a command.");
         }
 
-        CommandType commandType = parseCommandType(command);
+        Parser.CommandType commandType = parser.parseCommandType(command);
         switch (commandType) {
         case LIST:
-            System.out.println(" Here are the tasks in your list:");
-            for (int i = 0; i < tasks.size(); i++) {
-                System.out.println(" " + (i + 1) + "." + tasks.get(i));
-            }
+            ui.showTaskList(tasks);
             return;
         case MARK: {
-            Task task = getTaskForIndex(command, tasks);
+            int taskNumber = parser.parseTaskNumber(command);
+            Task task = tasks.get(taskNumber);
             task.markAsDone();
-            storage.saveTasks(tasks);
-            System.out.println(" Nice! I've marked this task as done:");
-            System.out.println("  " + task);
+            storage.saveTasks(tasks.getTasks());
+            ui.showTaskMarked(task);
             return;
         }
         case UNMARK: {
-            Task task = getTaskForIndex(command, tasks);
+            int taskNumber = parser.parseTaskNumber(command);
+            Task task = tasks.get(taskNumber);
             task.markAsNotDone();
-            storage.saveTasks(tasks);
-            System.out.println(" OK, I've marked this task as not done yet:");
-            System.out.println("  " + task);
+            storage.saveTasks(tasks.getTasks());
+            ui.showTaskUnmarked(task);
             return;
         }
         case DELETE: {
-            int taskNumber = parseTaskNumber(command);
-            if (!isValidTaskNumber(taskNumber, tasks.size())) {
-                throw new JarvisException("Please enter a valid task number.");
-            }
-
-            Task removed = tasks.remove(taskNumber - 1);
-            storage.saveTasks(tasks);
-            System.out.println(" Noted. I've removed this task:");
-            System.out.println("  " + removed);
-            int remainingTasks = tasks.size();
-            System.out.println(" Now you have " + remainingTasks + " "
-                    + pluralize("task", remainingTasks) + " in the list.");
+            int taskNumber = parser.parseTaskNumber(command);
+            Task removed = tasks.remove(taskNumber);
+            storage.saveTasks(tasks.getTasks());
+            ui.showTaskDeleted(removed, tasks.size());
             return;
         }
         case TODO: {
-            String description = parseTodoDescription(command);
-            Task task = new Todo(description);
-            addTask(tasks, task, storage);
+            Task task = parser.parseTodo(command);
+            tasks.add(task);
+            storage.saveTasks(tasks.getTasks());
+            ui.showTaskAdded(task, tasks.size());
             return;
         }
         case DEADLINE: {
-            ParsedDeadline parsed = parseDeadline(command);
-            Task task = new Deadline(parsed.description, parsed.by.getValue(), parsed.by.hasTime());
-            addTask(tasks, task, storage);
+            Task task = parser.parseDeadline(command);
+            tasks.add(task);
+            storage.saveTasks(tasks.getTasks());
+            ui.showTaskAdded(task, tasks.size());
             return;
         }
         case EVENT: {
-            ParsedEvent parsed = parseEvent(command);
-            Task task = new Event(parsed.description,
-                    parsed.from.getValue(), parsed.from.hasTime(),
-                    parsed.to.getValue(), parsed.to.hasTime());
-            addTask(tasks, task, storage);
+            Task task = parser.parseEvent(command);
+            tasks.add(task);
+            storage.saveTasks(tasks.getTasks());
+            ui.showTaskAdded(task, tasks.size());
             return;
         }
         case UNKNOWN:
         default:
             throw new JarvisException(UNKNOWN_COMMAND_MESSAGE);
-        }
-    }
-
-    private static CommandType parseCommandType(String command) {
-        String trimmedCommand = command.trim();
-        int separatorIndex = trimmedCommand.indexOf(' ');
-        String keyword = (separatorIndex == -1)
-                ? trimmedCommand
-                : trimmedCommand.substring(0, separatorIndex);
-
-        switch (keyword.toLowerCase()) {
-        case "list":
-            return CommandType.LIST;
-        case "mark":
-            return CommandType.MARK;
-        case "unmark":
-            return CommandType.UNMARK;
-        case "delete":
-            return CommandType.DELETE;
-        case "todo":
-            return CommandType.TODO;
-        case "deadline":
-            return CommandType.DEADLINE;
-        case "event":
-            return CommandType.EVENT;
-        default:
-            return CommandType.UNKNOWN;
-        }
-    }
-
-    private static Task getTaskForIndex(String command, ArrayList<Task> tasks) throws JarvisException {
-        int taskNumber = parseTaskNumber(command);
-        if (!isValidTaskNumber(taskNumber, tasks.size())) {
-            throw new JarvisException("Please enter a valid task number.");
-        }
-        return tasks.get(taskNumber - 1);
-    }
-
-    private static void addTask(ArrayList<Task> tasks, Task task, Storage storage) throws JarvisException {
-        if (tasks.size() >= MAX_TASKS) {
-            throw new JarvisException("Sorry, I can only store " + MAX_TASKS + " tasks.");
-        }
-
-        tasks.add(task);
-        storage.saveTasks(tasks);
-
-        System.out.println(" Got it. I've added this task:");
-        System.out.println("  " + task);
-        int numberOfTasks = tasks.size();
-        System.out.println(" Now you have " + numberOfTasks + " " + pluralize("task", numberOfTasks) + " in the list.");
-    }
-
-    private static int parseTaskNumber(String command) {
-        String[] parts = command.split("\\s+");
-        if (parts.length < 2) {
-            return -1;
-        }
-
-        try {
-            return Integer.parseInt(parts[1]);
-        } catch (NumberFormatException exception) {
-            return -1;
-        }
-    }
-
-    private static boolean isValidTaskNumber(int taskNumber, int taskCount) {
-        return taskNumber >= 1 && taskNumber <= taskCount;
-    }
-
-    private static String pluralize(String word, int count) {
-        if (count == 1) {
-            return word;
-        }
-        return word + "s";
-    }
-
-    private static String parseTodoDescription(String command) throws JarvisException {
-        if (command.equalsIgnoreCase("todo")) {
-            throw new JarvisException("The description of a todo cannot be empty.");
-        }
-
-        if (!command.toLowerCase().startsWith("todo ")) {
-            throw new JarvisException("Please use: todo <description>");
-        }
-
-        String description = command.substring("todo ".length()).trim();
-        if (description.isEmpty()) {
-            throw new JarvisException("The description of a todo cannot be empty.");
-        }
-        return description;
-    }
-
-    private static ParsedDeadline parseDeadline(String command) throws JarvisException {
-        if (command.equalsIgnoreCase("deadline")) {
-            throw new JarvisException("Please use: deadline <description> /by <yyyy-mm-dd> [HHmm]");
-        }
-
-        if (!command.toLowerCase().startsWith("deadline ")) {
-            throw new JarvisException("Please use: deadline <description> /by <yyyy-mm-dd> [HHmm]");
-        }
-
-        String payload = command.substring("deadline ".length()).trim();
-        int byIndex = payload.indexOf(" /by ");
-        if (byIndex == -1) {
-            throw new JarvisException("Please use: deadline <description> /by <yyyy-mm-dd> [HHmm]");
-        }
-
-        String description = payload.substring(0, byIndex).trim();
-        String byText = payload.substring(byIndex + " /by ".length()).trim();
-        if (description.isEmpty() || byText.isEmpty()) {
-            throw new JarvisException("Please use: deadline <description> /by <yyyy-mm-dd> [HHmm]");
-        }
-
-        String usageMessage = "Please use: deadline <description> /by <yyyy-mm-dd> [HHmm]";
-        DateTimeParser.ParsedDateTime by = DateTimeParser.parseUserDateTime(byText, usageMessage);
-        return new ParsedDeadline(description, by);
-    }
-
-    private static ParsedEvent parseEvent(String command) throws JarvisException {
-        if (command.equalsIgnoreCase("event")) {
-            throw new JarvisException("Please use: event <description> /from <yyyy-mm-dd> [HHmm] /to <yyyy-mm-dd> [HHmm]");
-        }
-
-        if (!command.toLowerCase().startsWith("event ")) {
-            throw new JarvisException("Please use: event <description> /from <yyyy-mm-dd> [HHmm] /to <yyyy-mm-dd> [HHmm]");
-        }
-
-        String payload = command.substring("event ".length()).trim();
-        int fromIndex = payload.indexOf(" /from ");
-        int toIndex = payload.indexOf(" /to ");
-        if (fromIndex == -1 || toIndex == -1 || fromIndex > toIndex) {
-            throw new JarvisException("Please use: event <description> /from <yyyy-mm-dd> [HHmm] /to <yyyy-mm-dd> [HHmm]");
-        }
-
-        String description = payload.substring(0, fromIndex).trim();
-        String fromText = payload.substring(fromIndex + " /from ".length(), toIndex).trim();
-        String toText = payload.substring(toIndex + " /to ".length()).trim();
-        if (description.isEmpty() || fromText.isEmpty() || toText.isEmpty()) {
-            throw new JarvisException("Please use: event <description> /from <yyyy-mm-dd> [HHmm] /to <yyyy-mm-dd> [HHmm]");
-        }
-
-        String usageMessage = "Please use: event <description> /from <yyyy-mm-dd> [HHmm] /to <yyyy-mm-dd> [HHmm]";
-        DateTimeParser.ParsedDateTime from = DateTimeParser.parseUserDateTime(fromText, usageMessage);
-        DateTimeParser.ParsedDateTime to = DateTimeParser.parseUserDateTime(toText, usageMessage);
-        return new ParsedEvent(description, from, to);
-    }
-
-    private static class ParsedDeadline {
-        private final String description;
-        private final DateTimeParser.ParsedDateTime by;
-
-        private ParsedDeadline(String description, DateTimeParser.ParsedDateTime by) {
-            this.description = description;
-            this.by = by;
-        }
-    }
-
-    private static class ParsedEvent {
-        private final String description;
-        private final DateTimeParser.ParsedDateTime from;
-        private final DateTimeParser.ParsedDateTime to;
-
-        private ParsedEvent(String description, DateTimeParser.ParsedDateTime from, DateTimeParser.ParsedDateTime to) {
-            this.description = description;
-            this.from = from;
-            this.to = to;
         }
     }
 }
