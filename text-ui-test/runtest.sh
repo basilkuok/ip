@@ -12,6 +12,12 @@ then
     rm ACTUAL.TXT
 fi
 
+# delete data file from previous run (tests expect a clean start)
+if [ -e "../data/Jarvis.txt" ]
+then
+    rm ../data/Jarvis.txt
+fi
+
 # compile the code into the bin folder, terminates if error occurred
 if ! javac -cp ../src/main/java -Xlint:none -d ../bin ../src/main/java/*.java
 then
