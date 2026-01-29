@@ -14,19 +14,19 @@ ____________________________________________________________
 ____________________________________________________________
 ____________________________________________________________
  Got it. I've added this task:
-  [D][ ] return book (by: Sunday)
+  [D][ ] return book (by: Dec 2 2019, 18:00)
  Now you have 2 tasks in the list.
 ____________________________________________________________
 ____________________________________________________________
- Please use: deadline <description> /by <time>
+ Please use: deadline <description> /by <yyyy-mm-dd> [HHmm]
 ____________________________________________________________
 ____________________________________________________________
  Got it. I've added this task:
-  [E][ ] project meeting (from: Mon 2pm to: 4pm)
+  [E][ ] project meeting (from: Dec 2 2019, 14:00 to: Dec 2 2019, 16:00)
  Now you have 3 tasks in the list.
 ____________________________________________________________
 ____________________________________________________________
- Please use: event <description> /from <start> /to <end>
+ Please use: event <description> /from <yyyy-mm-dd> [HHmm] /to <yyyy-mm-dd> [HHmm]
 ____________________________________________________________
 ____________________________________________________________
  Got it. I've added this task:
@@ -35,12 +35,12 @@ ____________________________________________________________
 ____________________________________________________________
 ____________________________________________________________
  Got it. I've added this task:
-  [D][ ] submit report (by: 11/10/2019 5pm)
+  [D][ ] submit report (by: Oct 11 2019, 17:00)
  Now you have 5 tasks in the list.
 ____________________________________________________________
 ____________________________________________________________
  Got it. I've added this task:
-  [E][ ] orientation week (from: 4/10/2019 to: 11/10/2019)
+  [E][ ] orientation week (from: Oct 4 2019 to: Oct 11 2019)
  Now you have 6 tasks in the list.
 ____________________________________________________________
 ____________________________________________________________
@@ -49,19 +49,19 @@ ____________________________________________________________
 ____________________________________________________________
  Here are the tasks in your list:
  1.[T][ ] borrow book
- 2.[D][ ] return book (by: Sunday)
- 3.[E][ ] project meeting (from: Mon 2pm to: 4pm)
+ 2.[D][ ] return book (by: Dec 2 2019, 18:00)
+ 3.[E][ ] project meeting (from: Dec 2 2019, 14:00 to: Dec 2 2019, 16:00)
  4.[T][ ] join sports club
- 5.[D][ ] submit report (by: 11/10/2019 5pm)
- 6.[E][ ] orientation week (from: 4/10/2019 to: 11/10/2019)
+ 5.[D][ ] submit report (by: Oct 11 2019, 17:00)
+ 6.[E][ ] orientation week (from: Oct 4 2019 to: Oct 11 2019)
 ____________________________________________________________
 ____________________________________________________________
  Nice! I've marked this task as done:
-  [D][X] return book (by: Sunday)
+  [D][X] return book (by: Dec 2 2019, 18:00)
 ____________________________________________________________
 ____________________________________________________________
  OK, I've marked this task as not done yet:
-  [D][ ] return book (by: Sunday)
+  [D][ ] return book (by: Dec 2 2019, 18:00)
 ____________________________________________________________
 ____________________________________________________________
  Nice! I've marked this task as done:
@@ -69,29 +69,29 @@ ____________________________________________________________
 ____________________________________________________________
 ____________________________________________________________
  Nice! I've marked this task as done:
-  [E][X] orientation week (from: 4/10/2019 to: 11/10/2019)
+  [E][X] orientation week (from: Oct 4 2019 to: Oct 11 2019)
 ____________________________________________________________
 ____________________________________________________________
  Here are the tasks in your list:
  1.[T][ ] borrow book
- 2.[D][ ] return book (by: Sunday)
- 3.[E][ ] project meeting (from: Mon 2pm to: 4pm)
+ 2.[D][ ] return book (by: Dec 2 2019, 18:00)
+ 3.[E][ ] project meeting (from: Dec 2 2019, 14:00 to: Dec 2 2019, 16:00)
  4.[T][X] join sports club
- 5.[D][ ] submit report (by: 11/10/2019 5pm)
- 6.[E][X] orientation week (from: 4/10/2019 to: 11/10/2019)
+ 5.[D][ ] submit report (by: Oct 11 2019, 17:00)
+ 6.[E][X] orientation week (from: Oct 4 2019 to: Oct 11 2019)
 ____________________________________________________________
 ____________________________________________________________
  Noted. I've removed this task:
-  [E][ ] project meeting (from: Mon 2pm to: 4pm)
+  [E][ ] project meeting (from: Dec 2 2019, 14:00 to: Dec 2 2019, 16:00)
  Now you have 5 tasks in the list.
 ____________________________________________________________
 ____________________________________________________________
  Here are the tasks in your list:
  1.[T][ ] borrow book
- 2.[D][ ] return book (by: Sunday)
+ 2.[D][ ] return book (by: Dec 2 2019, 18:00)
  3.[T][X] join sports club
- 4.[D][ ] submit report (by: 11/10/2019 5pm)
- 5.[E][X] orientation week (from: 4/10/2019 to: 11/10/2019)
+ 4.[D][ ] submit report (by: Oct 11 2019, 17:00)
+ 5.[E][X] orientation week (from: Oct 4 2019 to: Oct 11 2019)
 ____________________________________________________________
 ____________________________________________________________
  Noted. I've removed this task:
@@ -100,10 +100,10 @@ ____________________________________________________________
 ____________________________________________________________
 ____________________________________________________________
  Here are the tasks in your list:
- 1.[D][ ] return book (by: Sunday)
+ 1.[D][ ] return book (by: Dec 2 2019, 18:00)
  2.[T][X] join sports club
- 3.[D][ ] submit report (by: 11/10/2019 5pm)
- 4.[E][X] orientation week (from: 4/10/2019 to: 11/10/2019)
+ 3.[D][ ] submit report (by: Oct 11 2019, 17:00)
+ 4.[E][X] orientation week (from: Oct 4 2019 to: Oct 11 2019)
 ____________________________________________________________
 ____________________________________________________________
  Bye. Hope to see you again soon!
