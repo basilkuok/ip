@@ -1,3 +1,5 @@
+package jarvis;
+
 /**
  * A class to represent errors in user-specified commands.
  */

@@ -1,3 +1,5 @@
+package jarvis;
+
 /**
  * Parses user commands into structured data for Jarvis.
  */
@@ -142,4 +144,3 @@ public class Parser {
         return new Event(description, from.getValue(), from.hasTime(), to.getValue(), to.hasTime());
     }
 }
-
