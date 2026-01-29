@@ -3,7 +3,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
- * Runs Jarvis Level-6, an intelligent chatbot that supports todos, deadlines, events, and deleting tasks.
+ * Runs Jarvis Level-8, an intelligent chatbot that supports todos, deadlines, events, and deleting tasks.
  */
 public class Jarvis {
     private static final int MAX_TASKS = 100;
@@ -120,13 +120,15 @@ public class Jarvis {
         }
         case DEADLINE: {
             ParsedDeadline parsed = parseDeadline(command);
-            Task task = new Deadline(parsed.description, parsed.by);
+            Task task = new Deadline(parsed.description, parsed.by.getValue(), parsed.by.hasTime());
             addTask(tasks, task, storage);
             return;
         }
         case EVENT: {
             ParsedEvent parsed = parseEvent(command);
-            Task task = new Event(parsed.description, parsed.from, parsed.to);
+            Task task = new Event(parsed.description,
+                    parsed.from.getValue(), parsed.from.hasTime(),
+                    parsed.to.getValue(), parsed.to.hasTime());
             addTask(tasks, task, storage);
             return;
         }
@@ -227,59 +229,64 @@ public class Jarvis {
 
     private static ParsedDeadline parseDeadline(String command) throws JarvisException {
         if (command.equalsIgnoreCase("deadline")) {
-            throw new JarvisException("Please use: deadline <description> /by <time>");
+            throw new JarvisException("Please use: deadline <description> /by <yyyy-mm-dd> [HHmm]");
         }
 
         if (!command.toLowerCase().startsWith("deadline ")) {
-            throw new JarvisException("Please use: deadline <description> /by <time>");
+            throw new JarvisException("Please use: deadline <description> /by <yyyy-mm-dd> [HHmm]");
         }
 
         String payload = command.substring("deadline ".length()).trim();
         int byIndex = payload.indexOf(" /by ");
         if (byIndex == -1) {
-            throw new JarvisException("Please use: deadline <description> /by <time>");
+            throw new JarvisException("Please use: deadline <description> /by <yyyy-mm-dd> [HHmm]");
         }
 
         String description = payload.substring(0, byIndex).trim();
-        String by = payload.substring(byIndex + " /by ".length()).trim();
-        if (description.isEmpty() || by.isEmpty()) {
-            throw new JarvisException("Please use: deadline <description> /by <time>");
+        String byText = payload.substring(byIndex + " /by ".length()).trim();
+        if (description.isEmpty() || byText.isEmpty()) {
+            throw new JarvisException("Please use: deadline <description> /by <yyyy-mm-dd> [HHmm]");
         }
 
+        String usageMessage = "Please use: deadline <description> /by <yyyy-mm-dd> [HHmm]";
+        DateTimeParser.ParsedDateTime by = DateTimeParser.parseUserDateTime(byText, usageMessage);
         return new ParsedDeadline(description, by);
     }
 
     private static ParsedEvent parseEvent(String command) throws JarvisException {
         if (command.equalsIgnoreCase("event")) {
-            throw new JarvisException("Please use: event <description> /from <start> /to <end>");
+            throw new JarvisException("Please use: event <description> /from <yyyy-mm-dd> [HHmm] /to <yyyy-mm-dd> [HHmm]");
         }
 
         if (!command.toLowerCase().startsWith("event ")) {
-            throw new JarvisException("Please use: event <description> /from <start> /to <end>");
+            throw new JarvisException("Please use: event <description> /from <yyyy-mm-dd> [HHmm] /to <yyyy-mm-dd> [HHmm]");
         }
 
         String payload = command.substring("event ".length()).trim();
         int fromIndex = payload.indexOf(" /from ");
         int toIndex = payload.indexOf(" /to ");
         if (fromIndex == -1 || toIndex == -1 || fromIndex > toIndex) {
-            throw new JarvisException("Please use: event <description> /from <start> /to <end>");
+            throw new JarvisException("Please use: event <description> /from <yyyy-mm-dd> [HHmm] /to <yyyy-mm-dd> [HHmm]");
         }
 
         String description = payload.substring(0, fromIndex).trim();
-        String from = payload.substring(fromIndex + " /from ".length(), toIndex).trim();
-        String to = payload.substring(toIndex + " /to ".length()).trim();
-        if (description.isEmpty() || from.isEmpty() || to.isEmpty()) {
-            throw new JarvisException("Please use: event <description> /from <start> /to <end>");
+        String fromText = payload.substring(fromIndex + " /from ".length(), toIndex).trim();
+        String toText = payload.substring(toIndex + " /to ".length()).trim();
+        if (description.isEmpty() || fromText.isEmpty() || toText.isEmpty()) {
+            throw new JarvisException("Please use: event <description> /from <yyyy-mm-dd> [HHmm] /to <yyyy-mm-dd> [HHmm]");
         }
 
+        String usageMessage = "Please use: event <description> /from <yyyy-mm-dd> [HHmm] /to <yyyy-mm-dd> [HHmm]";
+        DateTimeParser.ParsedDateTime from = DateTimeParser.parseUserDateTime(fromText, usageMessage);
+        DateTimeParser.ParsedDateTime to = DateTimeParser.parseUserDateTime(toText, usageMessage);
         return new ParsedEvent(description, from, to);
     }
 
     private static class ParsedDeadline {
         private final String description;
-        private final String by;
+        private final DateTimeParser.ParsedDateTime by;
 
-        private ParsedDeadline(String description, String by) {
+        private ParsedDeadline(String description, DateTimeParser.ParsedDateTime by) {
             this.description = description;
             this.by = by;
         }
@@ -287,10 +294,10 @@ public class Jarvis {
 
     private static class ParsedEvent {
         private final String description;
-        private final String from;
-        private final String to;
+        private final DateTimeParser.ParsedDateTime from;
+        private final DateTimeParser.ParsedDateTime to;
 
-        private ParsedEvent(String description, String from, String to) {
+        private ParsedEvent(String description, DateTimeParser.ParsedDateTime from, DateTimeParser.ParsedDateTime to) {
             this.description = description;
             this.from = from;
             this.to = to;
