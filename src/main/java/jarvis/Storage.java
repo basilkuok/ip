@@ -156,8 +156,12 @@ public class Storage {
             if (fields.length != 5) {
                 throw new JarvisException("Data file corrupted at line " + lineNumber + ": invalid EVENT format.");
             }
-            DateTimeParser.ParsedDateTime parsedFrom = DateTimeParser.parseStoredDateTime(unescape(fields[3]), lineNumber);
-            DateTimeParser.ParsedDateTime parsedTo = DateTimeParser.parseStoredDateTime(unescape(fields[4]), lineNumber);
+            DateTimeParser.ParsedDateTime parsedFrom = DateTimeParser.parseStoredDateTime(
+                    unescape(fields[3]),
+                    lineNumber);
+            DateTimeParser.ParsedDateTime parsedTo = DateTimeParser.parseStoredDateTime(
+                    unescape(fields[4]),
+                    lineNumber);
             task = new Event(description,
                     parsedFrom.getValue(), parsedFrom.hasTime(),
                     parsedTo.getValue(), parsedTo.hasTime());
