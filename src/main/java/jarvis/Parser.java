@@ -12,6 +12,7 @@ public class Parser {
         MARK,
         UNMARK,
         DELETE,
+        FIND,
         TODO,
         DEADLINE,
         EVENT,
@@ -36,7 +37,9 @@ public class Parser {
         case "unmark":
             return CommandType.UNMARK;
         case "delete":
-            return CommandType.DELETE;
+            return CommandType.DELETE;        
+        case "find":
+            return CommandType.FIND;
         case "todo":
             return CommandType.TODO;
         case "deadline":
@@ -62,6 +65,26 @@ public class Parser {
         } catch (NumberFormatException exception) {
             return -1;
         }
+    }
+
+    /**
+     * Returns the keyword for the find command.
+     */
+    public String parseFindKeyword(String command) throws JarvisException {
+        if (command.equalsIgnoreCase("find")) {
+            throw new JarvisException("Please use: find <keyword>");
+        }
+
+        if (!command.toLowerCase().startsWith("find ")) {
+            throw new JarvisException("Please use: find <keyword>");
+        }
+
+        String keyword = command.substring("find ".length()).trim();
+        if (keyword.isEmpty()) {
+            throw new JarvisException("Please use: find <keyword>");
+        }
+
+        return keyword;
     }
 
     /**

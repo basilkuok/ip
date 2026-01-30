@@ -2,6 +2,7 @@ package jarvis;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Stores and manages the list of tasks.
@@ -69,6 +70,25 @@ public class TaskList {
         return tasks;
     }
     
+    /**
+     * Returns tasks whose descriptions contain the given keyword (case-insensitive).
+     *
+     * @param keyword Keyword to search for.
+     * @return Matching tasks, in the original task order.
+     * @throws JarvisException If the keyword is blank.
+     */
+    public List<Task> findByKeyword(String keyword) throws JarvisException {
+        String trimmedKeyword = keyword.trim();
+        if (trimmedKeyword.isEmpty()) {
+            throw new JarvisException("Please use: find <keyword>");
+        }
+
+        String normalizedKeyword = trimmedKeyword.toLowerCase();
+        return tasks.stream()
+                .filter(task -> task.getDescription().toLowerCase().contains(normalizedKeyword))
+                .collect(Collectors.toList());
+    }
+
     /**
      * Returns the task at the given 0-based index without validation.
      *

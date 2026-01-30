@@ -44,7 +44,12 @@ ____________________________________________________________
  Now you have 6 tasks in the list.
 ____________________________________________________________
 ____________________________________________________________
- Sorry, I don't know what that means. Valid command starts with: todo, deadline, event, list, mark, unmark, delete, bye.
+ Here are the matching tasks in your list:
+ 1.[T][ ] borrow book
+ 2.[D][ ] return book (by: Dec 2 2019, 18:00)
+____________________________________________________________
+____________________________________________________________
+ Sorry, I don't know what that means. Valid command starts with: todo, deadline, event, list, mark, unmark, delete, find, bye.
 ____________________________________________________________
 ____________________________________________________________
  Here are the tasks in your list:
