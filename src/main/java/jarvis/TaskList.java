@@ -68,7 +68,12 @@ public class TaskList {
     public List<Task> getTasks() {
         return tasks;
     }
-
+    
+    /**
+     * Returns the task at the given 0-based index without validation.
+     *
+     * <p>This is intended for internal use when iterating and printing tasks.
+     */
     Task getRaw(int zeroBasedIndex) {
         return tasks.get(zeroBasedIndex);
     }

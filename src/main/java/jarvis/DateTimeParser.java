@@ -34,6 +34,12 @@ public class DateTimeParser {
             formatter("uuuu-MM-dd"),
             formatter("d/M/uuuu"));
 
+    /**
+     * Returns a strict formatter for the given pattern.
+     *
+     * @param pattern Date/time pattern.
+     * @return Formatter with strict resolver style.
+     */
     private static DateTimeFormatter formatter(String pattern) {
         return DateTimeFormatter.ofPattern(pattern).withResolverStyle(ResolverStyle.STRICT);
     }
@@ -141,12 +147,19 @@ public class DateTimeParser {
             this.hasTime = hasTime;
         }
 
+        /**
+         * Returns the parsed date/time value.
+         */
         public LocalDateTime getValue() {
             return value;
         }
 
+        /**
+         * Returns whether the original input included a time component.
+         */
         public boolean hasTime() {
             return hasTime;
         }
     }
 }
+

@@ -98,7 +98,13 @@ public class Storage {
             throw new JarvisException("Unable to save data file: " + exception.getMessage());
         }
     }
-
+    
+    /**
+     * Resolves the data file path, accounting for different working directories
+     * (e.g., running from project root vs. running from {@code text-ui-test/}).
+     *
+     * @return Data file path resolved against the current working directory.
+     */
     private Path resolveDataFilePath() {
         Path currentDirectory = Path.of("");
         if (Files.isDirectory(currentDirectory.resolve("src").resolve("main").resolve("java"))) {
@@ -112,7 +118,15 @@ public class Storage {
 
         return currentDirectory.resolve(dataFilePathFromProjectRoot);
     }
-
+    
+    /**
+     * Parses a single stored task line into a {@link Task}.
+     *
+     * @param line Stored line from the data file.
+     * @param lineNumber Line number in the data file (1-based).
+     * @return Parsed task.
+     * @throws JarvisException If the line format is invalid.
+     */
     private static Task parseTaskLine(String line, int lineNumber) throws JarvisException {
         String[] fields = line.split(FIELD_SEPARATOR, -1);
         if (fields.length < 3) {
@@ -157,7 +171,15 @@ public class Storage {
         }
         return task;
     }
-
+    
+    /**
+     * Parses the stored done marker.
+     *
+     * @param marker Stored marker value.
+     * @param lineNumber Line number in the data file (1-based).
+     * @return {@code true} if done, {@code false} otherwise.
+     * @throws JarvisException If the marker is invalid.
+     */
     private static boolean parseDoneMarker(String marker, int lineNumber) throws JarvisException {
         switch (marker) {
         case "0":
@@ -169,6 +191,13 @@ public class Storage {
         }
     }
 
+    /**
+     * Serializes the given task to a single line for saving.
+     *
+     * @param task Task to serialize.
+     * @return Serialized task line.
+     * @throws JarvisException If the task type is unsupported.
+     */
     private static String serializeTask(Task task) throws JarvisException {
         String doneMarker = task.isDone() ? "1" : "0";
         String description = escape(task.getDescription());
@@ -194,6 +223,9 @@ public class Storage {
         throw new JarvisException("Unable to save unknown task type: " + task.getClass().getSimpleName());
     }
 
+    /**
+     * Escapes a value so it can be stored on one line.
+     */
     private static String escape(String value) {
         return value
                 .replace("\\", "\\\\")
@@ -201,6 +233,9 @@ public class Storage {
                 .replace("\n", "\\n");
     }
 
+    /**
+     * Unescapes a stored value.
+     */
     private static String unescape(String value) {
         StringBuilder builder = new StringBuilder();
         int index = 0;
@@ -236,7 +271,10 @@ public class Storage {
         }
         return builder.toString();
     }
-
+    
+    /**
+     * Moves a corrupted data file out of the way so Jarvis can start with a clean slate.
+     */
     private static void backupCorruptedDataFileIfPossible(Path dataFilePath) {
         if (!Files.exists(dataFilePath)) {
             return;
@@ -249,7 +287,10 @@ public class Storage {
             // Best-effort backup only.
         }
     }
-
+    
+    /**
+     * Returns a backup file path that does not already exist.
+     */
     private static Path nextAvailableBackupPath(Path dataFilePath) {
         Path firstChoice = dataFilePath.resolveSibling(dataFilePath.getFileName() + ".corrupted");
         if (!Files.exists(firstChoice)) {
