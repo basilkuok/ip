@@ -67,6 +67,12 @@ public class Jarvis {
         new Jarvis(Path.of("data", "Jarvis.txt")).run();
     }
 
+    /**
+     * Executes a single user command and prints the corresponding response.
+     *
+     * @param command Full user command line.
+     * @throws JarvisException If the command is invalid or cannot be executed.
+     */
     private void executeCommand(String command) throws JarvisException {
         if (command.isEmpty()) {
             throw new JarvisException("Please enter a command.");
