@@ -3,12 +3,12 @@ package jarvis;
 import java.nio.file.Path;
 
 /**
- * Runs Jarvis Level-8, an intelligent chatbot that supports todos, deadlines, events, and deleting tasks.
+ * Runs Jarvis Level-9, an intelligent chatbot that supports todos, deadlines, events, and deleting tasks.
  */
 public class Jarvis {
     private static final String UNKNOWN_COMMAND_MESSAGE =
             "Sorry, I don't know what that means. Valid command starts with: "
-                    + "todo, deadline, event, list, mark, unmark, delete, bye.";
+                    + "todo, deadline, event, list, mark, unmark, delete, find, bye.";
 
     private final Storage storage;
     private final TaskList tasks;
@@ -106,6 +106,11 @@ public class Jarvis {
             ui.showTaskDeleted(removed, tasks.size());
             return;
         }
+        case FIND: {
+            String keyword = parser.parseFindKeyword(command);
+            ui.showMatchingTasks(tasks.findByKeyword(keyword));
+            return;
+        }        
         case TODO: {
             Task task = parser.parseTodo(command);
             tasks.add(task);

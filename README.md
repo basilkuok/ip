@@ -1,4 +1,4 @@
-# Jarvis Level-8
+# Jarvis Level-9
 
 This is a project template for a greenfield Java project. It's named after Tony Stack's intelligent personal assistant Jarvis. The chatbot supports todos, deadlines, events, and saving/loading tasks to/from disk, and understanding dates/time. Given below are instructions on how to use it.
 
@@ -22,15 +22,6 @@ Prerequisites: JDK 17, update Intellij to the most recent version.
     Bye. Hope to see you again soon!
    ____________________________________________________________
    ```
-
-## Level-7: Save / Load
-
-- Tasks are automatically saved whenever the task list changes (add/mark/unmark/delete).
-- Tasks are loaded from disk when Jarvis starts.
-- Data file path (relative to project root): `data/Jarvis.txt`
-  - The `data/` folder and the file are created automatically when needed.
-  - If the file does not exist yet, Jarvis starts with an empty list.
-  - If the file exists but is corrupted/unreadable, Jarvis starts with an empty list and the old file is backed up as `data/Jarvis.txt.corrupted*`.
 
 ### Data file format
 

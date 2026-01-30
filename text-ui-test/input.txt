@@ -7,6 +7,7 @@ event project meeting /from 2019-12-02 1400
 todo join sports club
 deadline submit report /by 11/10/2019 1700
 event orientation week /from 4/10/2019 /to 11/10/2019
+find book
 blah
 list
 mark 2

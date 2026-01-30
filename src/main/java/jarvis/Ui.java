@@ -1,6 +1,7 @@
 package jarvis;
 
 import java.util.Scanner;
+import java.util.List;
 
 /**
  * Handles all interactions with the user for Jarvis.
@@ -116,6 +117,21 @@ public class Ui implements AutoCloseable {
         System.out.println("  " + task);
         System.out.println(" Now you have " + remainingTasks + " "
                 + pluralize("task", remainingTasks) + " in the list.");
+    }
+
+        /**
+     * Prints all tasks that match a find keyword.
+     */
+    public void showMatchingTasks(List<Task> matchingTasks) {
+        System.out.println(" Here are the matching tasks in your list:");
+        if (matchingTasks.isEmpty()) {
+            System.out.println("  (none)");
+            return;
+        }
+
+        for (int i = 0; i < matchingTasks.size(); i++) {
+            System.out.println(" " + (i + 1) + "." + matchingTasks.get(i));
+        }
     }
 
     private static String pluralize(String word, int count) {
