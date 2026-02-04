@@ -1,6 +1,19 @@
-# Jarvis Level-9
+# Jarvis Level-10
 
 This is a project template for a greenfield Java project. It's named after Tony Stack's intelligent personal assistant Jarvis. The chatbot supports todos, deadlines, events, and saving/loading tasks to/from disk, and understanding dates/time. Given below are instructions on how to use it.
+
+## Level-10: GUI (JavaFX)
+
+This project includes a JavaFX GUI entrypoint following the JavaFX tutorial Parts 1–4:
+
+- Main class: `Jarvis.Launcher`
+- FXML views: `src/main/resources/view/`
+
+Run it using Gradle:
+
+```bash
+./gradlew run
+```
 
 ## Setting up in Intellij
 

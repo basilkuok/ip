@@ -20,3 +20,6 @@ text-ui-test/EXPECTED-UNIX.TXT
 # VS Code settings (track repo-level settings.json)
 /.vscode/*
 !/.vscode/settings.json
+
+# JavaFX tutorial repo copy
+/javafx-tutorial/
