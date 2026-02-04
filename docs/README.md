@@ -2,7 +2,7 @@
 
 // Product screenshot goes here
 
-Jarvis Level-9 is an intelligent chatbot that helps you keep track of your tasks.
+Jarvis Level-10 is an intelligent chatbot that helps you keep track of your tasks.
 It supports todos, deadlines, and events, and lets you mark tasks as done or not done.
 
 ## Getting Started
