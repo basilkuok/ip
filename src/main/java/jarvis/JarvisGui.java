@@ -35,9 +35,11 @@ public class JarvisGui {
      * Returns the welcome message shown when the GUI starts.
      */
     public String getWelcomeMessage() {
-        return "Hello! I'm Jarvis\n"
-                + "I am your super-intelligent friend.\n"
-                + "What can I do for you?";
+        return joinLines(
+                "Hello! I'm Astra",
+                "I am your super-intelligent friend.",
+                "What can I do for you?"
+        );
     }
 
     /**
@@ -80,25 +82,31 @@ public class JarvisGui {
             Task task = tasks.get(taskNumber);
             task.markAsDone();
             storage.saveTasks(tasks.getTasks());
-            return "Nice! I've marked this task as done:\n"
-                    + "  " + task;
+            return joinLines(
+                    "Nice! I've marked this task as done:",
+                    "  " + task
+            );
         }
         case UNMARK: {
             int taskNumber = parser.parseTaskNumber(command);
             Task task = tasks.get(taskNumber);
             task.markAsNotDone();
             storage.saveTasks(tasks.getTasks());
-            return "OK, I've marked this task as not done yet:\n"
-                    + "  " + task;
+            return joinLines(
+                    "OK, I've marked this task as not done yet:",
+                    "  " + task
+            );
         }
         case DELETE: {
             int taskNumber = parser.parseTaskNumber(command);
             Task removed = tasks.remove(taskNumber);
             storage.saveTasks(tasks.getTasks());
             int remainingTasks = tasks.size();
-            return "Noted. I've removed this task:\n"
-                    + "  " + removed + "\n"
-                    + "Now you have " + remainingTasks + " " + pluralize("task", remainingTasks) + " in the list.";
+            return joinLines(
+                    "Noted. I've removed this task:",
+                    "  " + removed,
+                    "Now you have " + remainingTasks + " " + pluralize("task", remainingTasks) + " in the list."
+            );
         }
         case FIND: {
             String keyword = parser.parseFindKeyword(command);
@@ -130,9 +138,11 @@ public class JarvisGui {
 
     private String formatTaskAdded(Task task) {
         int numberOfTasks = tasks.size();
-        return "Got it. I've added this task:\n"
-                + "  " + task + "\n"
-                + "Now you have " + numberOfTasks + " " + pluralize("task", numberOfTasks) + " in the list.";
+        return joinLines(
+                "Got it. I've added this task:",
+                "  " + task,
+                "Now you have " + numberOfTasks + " " + pluralize("task", numberOfTasks) + " in the list."
+        );
     }
 
     private String formatTaskList() {
@@ -158,5 +168,9 @@ public class JarvisGui {
 
     private static String pluralize(String word, int count) {
         return (count == 1) ? word : word + "s";
+    }
+
+    private static String joinLines(String... lines) {
+        return String.join("\n", lines);
     }
 }
