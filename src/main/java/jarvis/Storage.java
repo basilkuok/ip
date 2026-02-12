@@ -11,6 +11,7 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Loads tasks from disk when Jarvis starts, and saves tasks to disk whenever the task list changes.
@@ -27,6 +28,7 @@ public class Storage {
      * Creates a Storage that reads/writes tasks to the given file path (relative to the project root).
      */
     public Storage(Path dataFilePathFromProjectRoot) {
+        assert dataFilePathFromProjectRoot != null : "dataFilePathFromProjectRoot should not be null";
         this.dataFilePathFromProjectRoot = dataFilePathFromProjectRoot;
     }
 
@@ -69,6 +71,8 @@ public class Storage {
      * @throws JarvisException If tasks cannot be saved to disk.
      */
     public void saveTasks(List<Task> tasks) throws JarvisException {
+        assert tasks != null : "tasks should not be null";
+        assert tasks.stream().allMatch(Objects::nonNull) : "tasks should not contain null entries";
         Path dataFilePath = resolveDataFilePath();
         Path dataDirectory = dataFilePath.getParent();
         try {
@@ -128,6 +132,7 @@ public class Storage {
      * @throws JarvisException If the line format is invalid.
      */
     private static Task parseTaskLine(String line, int lineNumber) throws JarvisException {
+        assert lineNumber > 0 : "lineNumber should be 1-based and positive";
         String[] fields = line.split(FIELD_SEPARATOR, -1);
         if (fields.length < 3) {
             throw new JarvisException("Data file corrupted at line " + lineNumber + ": not enough fields.");
