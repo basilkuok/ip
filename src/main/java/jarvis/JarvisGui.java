@@ -2,6 +2,8 @@ package jarvis;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Provides Jarvis responses for a GUI.
@@ -146,24 +148,27 @@ public class JarvisGui {
     }
 
     private String formatTaskList() {
-        StringBuilder sb = new StringBuilder("Here are the tasks in your list:");
-        for (int i = 0; i < tasks.size(); i++) {
-            sb.append("\n").append(i + 1).append(".").append(tasks.getRaw(i));
+        if (tasks.size() == 0) {
+            return "Here are the tasks in your list:";
         }
-        return sb.toString();
+
+        String formattedTasks = IntStream.range(0, tasks.size())
+                .mapToObj(index -> (index + 1) + "." + tasks.getRaw(index))
+                .collect(Collectors.joining("\n"));
+
+        return "Here are the tasks in your list:\n" + formattedTasks;
     }
 
     private static String formatMatchingTasks(List<Task> matchingTasks) {
-        StringBuilder sb = new StringBuilder("Here are the matching tasks in your list:");
         if (matchingTasks.isEmpty()) {
-            sb.append("\n  (none)");
-            return sb.toString();
+            return "Here are the matching tasks in your list:\n  (none)";
         }
 
-        for (int i = 0; i < matchingTasks.size(); i++) {
-            sb.append("\n").append(i + 1).append(".").append(matchingTasks.get(i));
-        }
-        return sb.toString();
+        String formattedTasks = IntStream.range(0, matchingTasks.size())
+                .mapToObj(index -> (index + 1) + "." + matchingTasks.get(index))
+                .collect(Collectors.joining("\n"));
+
+        return "Here are the matching tasks in your list:\n" + formattedTasks;
     }
 
     private static String pluralize(String word, int count) {
