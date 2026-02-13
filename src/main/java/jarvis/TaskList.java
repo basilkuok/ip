@@ -67,9 +67,9 @@ public class TaskList {
      * Returns the internal tasks list for storage.
      */
     public List<Task> getTasks() {
-        return tasks;
+        return List.copyOf(tasks);
     }
-    
+
     /**
      * Returns tasks whose descriptions contain the given keyword (case-insensitive).
      *

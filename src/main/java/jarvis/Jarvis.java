@@ -6,10 +6,6 @@ import java.nio.file.Path;
  * Runs Jarvis Level-9, an intelligent chatbot that supports todos, deadlines, events, and deleting tasks.
  */
 public class Jarvis {
-    private static final String UNKNOWN_COMMAND_MESSAGE =
-            "Sorry, I don't know what that means. Valid command starts with: "
-                    + "todo, deadline, event, list, mark, unmark, delete, find, bye.";
-
     private final Storage storage;
     private final TaskList tasks;
     private final Ui ui;
@@ -75,7 +71,7 @@ public class Jarvis {
      */
     private void executeCommand(String command) throws JarvisException {
         if (command.isEmpty()) {
-            throw new JarvisException("Please enter a command.");
+            throw new JarvisException(Messages.EMPTY_COMMAND_MESSAGE);
         }
 
         Parser.CommandType commandType = parser.parseCommandType(command);
@@ -83,58 +79,65 @@ public class Jarvis {
         case LIST:
             ui.showTaskList(tasks);
             return;
-        case MARK: {
-            int taskNumber = parser.parseTaskNumber(command);
-            Task task = tasks.get(taskNumber);
-            task.markAsDone();
-            storage.saveTasks(tasks.getTasks());
-            ui.showTaskMarked(task);
+        case MARK:
+            markTask(command);
             return;
-        }
-        case UNMARK: {
-            int taskNumber = parser.parseTaskNumber(command);
-            Task task = tasks.get(taskNumber);
-            task.markAsNotDone();
-            storage.saveTasks(tasks.getTasks());
-            ui.showTaskUnmarked(task);
+        case UNMARK:
+            unmarkTask(command);
             return;
-        }
-        case DELETE: {
-            int taskNumber = parser.parseTaskNumber(command);
-            Task removed = tasks.remove(taskNumber);
-            storage.saveTasks(tasks.getTasks());
-            ui.showTaskDeleted(removed, tasks.size());
+        case DELETE:
+            deleteTask(command);
             return;
-        }
         case FIND: {
             String keyword = parser.parseFindKeyword(command);
             ui.showMatchingTasks(tasks.findByKeyword(keyword));
             return;
-        }        
-        case TODO: {
-            Task task = parser.parseTodo(command);
-            tasks.add(task);
-            storage.saveTasks(tasks.getTasks());
-            ui.showTaskAdded(task, tasks.size());
-            return;
         }
-        case DEADLINE: {
-            Task task = parser.parseDeadline(command);
-            tasks.add(task);
-            storage.saveTasks(tasks.getTasks());
-            ui.showTaskAdded(task, tasks.size());
+        case TODO:
+            addTask(parser.parseTodo(command));
             return;
-        }
-        case EVENT: {
-            Task task = parser.parseEvent(command);
-            tasks.add(task);
-            storage.saveTasks(tasks.getTasks());
-            ui.showTaskAdded(task, tasks.size());
+        case DEADLINE:
+            addTask(parser.parseDeadline(command));
             return;
-        }
+        case EVENT:
+            addTask(parser.parseEvent(command));
+            return;
         case UNKNOWN:
         default:
-            throw new JarvisException(UNKNOWN_COMMAND_MESSAGE);
+            throw new JarvisException(Messages.UNKNOWN_COMMAND_MESSAGE);
         }
+    }
+
+    private void persistTasks() throws JarvisException {
+        storage.saveTasks(tasks.getTasks());
+    }
+
+    private void markTask(String command) throws JarvisException {
+        int taskNumber = parser.parseTaskNumber(command);
+        Task task = tasks.get(taskNumber);
+        task.markAsDone();
+        persistTasks();
+        ui.showTaskMarked(task);
+    }
+
+    private void unmarkTask(String command) throws JarvisException {
+        int taskNumber = parser.parseTaskNumber(command);
+        Task task = tasks.get(taskNumber);
+        task.markAsNotDone();
+        persistTasks();
+        ui.showTaskUnmarked(task);
+    }
+
+    private void deleteTask(String command) throws JarvisException {
+        int taskNumber = parser.parseTaskNumber(command);
+        Task removed = tasks.remove(taskNumber);
+        persistTasks();
+        ui.showTaskDeleted(removed, tasks.size());
+    }
+
+    private void addTask(Task task) throws JarvisException {
+        tasks.add(task);
+        persistTasks();
+        ui.showTaskAdded(task, tasks.size());
     }
 }
