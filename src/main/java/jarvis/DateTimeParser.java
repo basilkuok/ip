@@ -132,6 +132,7 @@ public class DateTimeParser {
      * Returns a date/time value guaranteed to contain only minute-level precision.
      */
     public static LocalDateTime normalize(LocalDateTime value) {
+        assert value != null : "value should not be null";
         return value.withSecond(0).withNano(0);
     }
 

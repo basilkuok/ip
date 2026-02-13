@@ -23,7 +23,9 @@ public class Parser {
      * Returns the command type based on the first keyword of the command.
      */
     public CommandType parseCommandType(String command) {
+        assert command != null : "command should not be null";
         String trimmedCommand = command.trim();
+        assert !trimmedCommand.isEmpty() : "command should not be empty";
         int separatorIndex = trimmedCommand.indexOf(' ');
         String keyword = (separatorIndex == -1)
                 ? trimmedCommand
@@ -37,7 +39,7 @@ public class Parser {
         case "unmark":
             return CommandType.UNMARK;
         case "delete":
-            return CommandType.DELETE;        
+            return CommandType.DELETE;
         case "find":
             return CommandType.FIND;
         case "todo":
@@ -54,16 +56,17 @@ public class Parser {
     /**
      * Returns a task number parsed from commands like {@code mark 2}.
      */
-    public int parseTaskNumber(String command) {
+    public int parseTaskNumber(String command) throws JarvisException {
+        assert command != null : "command should not be null";
         String[] parts = command.split("\\s+");
         if (parts.length < 2) {
-            return -1;
+            throw new JarvisException("Please enter a valid task number.");
         }
 
         try {
             return Integer.parseInt(parts[1]);
         } catch (NumberFormatException exception) {
-            return -1;
+            throw new JarvisException("Please enter a valid task number.");
         }
     }
 

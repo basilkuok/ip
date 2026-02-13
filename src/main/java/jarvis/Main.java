@@ -16,7 +16,7 @@ import java.nio.file.Path;
 public class Main extends Application {
     private static final Path DEFAULT_DATA_FILE_PATH = Path.of("data", "Jarvis.txt");
 
-    private final JarvisGui Jarvis = new JarvisGui(DEFAULT_DATA_FILE_PATH);
+    private final JarvisGui jarvis = new JarvisGui(DEFAULT_DATA_FILE_PATH);
 
     @Override
     public void start(Stage stage) {
@@ -33,10 +33,10 @@ public class Main extends Application {
             stage.setResizable(true);
             stage.setTitle("Jarvis");
 
-            fxmlLoader.<MainWindow>getController().setJarvis(Jarvis);
+            fxmlLoader.<MainWindow>getController().setJarvis(jarvis);
             stage.show();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new IllegalStateException("Unable to load MainWindow.fxml.", e);
         }
     }
 }
