@@ -37,6 +37,7 @@ public class TaskList {
      * Adds a task to the list.
      */
     public void add(Task task) throws JarvisException {
+        assert task != null : "task should not be null";
         if (tasks.size() >= MAX_TASKS) {
             throw new JarvisException("Sorry, I can only store " + MAX_TASKS + " tasks.");
         }
@@ -95,6 +96,8 @@ public class TaskList {
      * <p>This is intended for internal use when iterating and printing tasks.
      */
     Task getRaw(int zeroBasedIndex) {
+        assert zeroBasedIndex >= 0 : "zeroBasedIndex should be non-negative";
+        assert zeroBasedIndex < tasks.size() : "zeroBasedIndex should be current task list size";
         return tasks.get(zeroBasedIndex);
     }
 
