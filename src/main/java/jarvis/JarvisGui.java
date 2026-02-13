@@ -7,10 +7,6 @@ import java.util.List;
  * Provides Jarvis responses for a GUI.
  */
 public class JarvisGui {
-    private static final String UNKNOWN_COMMAND_MESSAGE =
-            "Sorry, I don't know what that means. Valid command starts with: "
-                    + "todo, deadline, event, list, mark, unmark, delete, find, bye.";
-
     private final Storage storage;
     private final TaskList tasks;
     private final Parser parser;
@@ -36,7 +32,7 @@ public class JarvisGui {
      */
     public String getWelcomeMessage() {
         return joinLines(
-                "Hello! I'm Astra",
+                "Hello! I'm Jarvis",
                 "I am your super-intelligent friend.",
                 "What can I do for you?"
         );
@@ -58,7 +54,7 @@ public class JarvisGui {
     public String getResponse(String input) {
         String trimmedInput = (input == null) ? "" : input.trim();
         if (trimmedInput.isEmpty()) {
-            return "Please enter a command.";
+            return Messages.EMPTY_COMMAND_MESSAGE;
         }
 
         if (trimmedInput.equalsIgnoreCase("bye")) {
@@ -77,63 +73,70 @@ public class JarvisGui {
         switch (commandType) {
         case LIST:
             return formatTaskList();
-        case MARK: {
-            int taskNumber = parser.parseTaskNumber(command);
-            Task task = tasks.get(taskNumber);
-            task.markAsDone();
-            storage.saveTasks(tasks.getTasks());
-            return joinLines(
-                    "Nice! I've marked this task as done:",
-                    "  " + task
-            );
-        }
-        case UNMARK: {
-            int taskNumber = parser.parseTaskNumber(command);
-            Task task = tasks.get(taskNumber);
-            task.markAsNotDone();
-            storage.saveTasks(tasks.getTasks());
-            return joinLines(
-                    "OK, I've marked this task as not done yet:",
-                    "  " + task
-            );
-        }
-        case DELETE: {
-            int taskNumber = parser.parseTaskNumber(command);
-            Task removed = tasks.remove(taskNumber);
-            storage.saveTasks(tasks.getTasks());
-            int remainingTasks = tasks.size();
-            return joinLines(
-                    "Noted. I've removed this task:",
-                    "  " + removed,
-                    "Now you have " + remainingTasks + " " + pluralize("task", remainingTasks) + " in the list."
-            );
-        }
+        case MARK:
+            return markTask(command);
+        case UNMARK:
+            return unmarkTask(command);
+        case DELETE:
+            return deleteTask(command);
         case FIND: {
             String keyword = parser.parseFindKeyword(command);
             return formatMatchingTasks(tasks.findByKeyword(keyword));
         }
-        case TODO: {
-            Task task = parser.parseTodo(command);
-            tasks.add(task);
-            storage.saveTasks(tasks.getTasks());
-            return formatTaskAdded(task);
-        }
-        case DEADLINE: {
-            Task task = parser.parseDeadline(command);
-            tasks.add(task);
-            storage.saveTasks(tasks.getTasks());
-            return formatTaskAdded(task);
-        }
-        case EVENT: {
-            Task task = parser.parseEvent(command);
-            tasks.add(task);
-            storage.saveTasks(tasks.getTasks());
-            return formatTaskAdded(task);
-        }
+        case TODO:
+            return addTask(parser.parseTodo(command));
+        case DEADLINE:
+            return addTask(parser.parseDeadline(command));
+        case EVENT:
+            return addTask(parser.parseEvent(command));
         case UNKNOWN:
         default:
-            throw new JarvisException(UNKNOWN_COMMAND_MESSAGE);
+            throw new JarvisException(Messages.UNKNOWN_COMMAND_MESSAGE);
         }
+    }
+
+    private void persistTasks() throws JarvisException {
+        storage.saveTasks(tasks.getTasks());
+    }
+
+    private String markTask(String command) throws JarvisException {
+        int taskNumber = parser.parseTaskNumber(command);
+        Task task = tasks.get(taskNumber);
+        task.markAsDone();
+        persistTasks();
+        return joinLines(
+                "Nice! I've marked this task as done:",
+                "  " + task
+        );
+    }
+
+    private String unmarkTask(String command) throws JarvisException {
+        int taskNumber = parser.parseTaskNumber(command);
+        Task task = tasks.get(taskNumber);
+        task.markAsNotDone();
+        persistTasks();
+        return joinLines(
+                "OK, I've marked this task as not done yet:",
+                "  " + task
+        );
+    }
+
+    private String deleteTask(String command) throws JarvisException {
+        int taskNumber = parser.parseTaskNumber(command);
+        Task removed = tasks.remove(taskNumber);
+        persistTasks();
+        int remainingTasks = tasks.size();
+        return joinLines(
+                "Noted. I've removed this task:",
+                "  " + removed,
+                "Now you have " + remainingTasks + " " + pluralize("task", remainingTasks) + " in the list."
+        );
+    }
+
+    private String addTask(Task task) throws JarvisException {
+        tasks.add(task);
+        persistTasks();
+        return formatTaskAdded(task);
     }
 
     private String formatTaskAdded(Task task) {
