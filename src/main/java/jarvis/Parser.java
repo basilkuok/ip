@@ -23,7 +23,9 @@ public class Parser {
      * Returns the command type based on the first keyword of the command.
      */
     public CommandType parseCommandType(String command) {
+        assert command != null : "command should not be null";
         String trimmedCommand = command.trim();
+        assert !trimmedCommand.isEmpty() : "command should not be empty";
         int separatorIndex = trimmedCommand.indexOf(' ');
         String keyword = (separatorIndex == -1)
                 ? trimmedCommand
@@ -55,6 +57,7 @@ public class Parser {
      * Returns a task number parsed from commands like {@code mark 2}.
      */
     public int parseTaskNumber(String command) throws JarvisException {
+        assert command != null : "command should not be null";
         String[] parts = command.split("\\s+");
         if (parts.length < 2) {
             throw new JarvisException("Please enter a valid task number.");
@@ -66,7 +69,6 @@ public class Parser {
             throw new JarvisException("Please enter a valid task number.");
         }
     }
-
 
     /**
      * Returns the keyword for the find command.

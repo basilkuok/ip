@@ -19,6 +19,7 @@ public class Task {
      * Creates a task with the given description.
      */
     public Task(String description) {
+        assert description != null : "description should not be null";
         this.description = description;
         this.status = Status.TODO;
     }
