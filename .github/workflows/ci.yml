@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@v2
+
+      - name: Set up JDK 17 (with JavaFX)
+        uses: actions/setup-java@v4
+        with:
+          distribution: zulu
+          java-version: "17"
+          java-package: jdk+fx
+          cache: gradle
+
+      - name: Run Gradle tests
+        run: ./gradlew --no-daemon test
+
+      - name: Run text UI regression test
+        run: |
+          cd text-ui-test
+          bash runtest.sh
