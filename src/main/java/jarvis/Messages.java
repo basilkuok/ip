@@ -8,7 +8,7 @@ public final class Messages {
 
     public static final String UNKNOWN_COMMAND_MESSAGE =
             "Sorry, I don't know what that means. Valid command starts with: "
-                    + "todo, deadline, event, list, mark, unmark, delete, find, bye.";
+                    + "todo, deadline, event, list, mark, unmark, delete, find, priority, bye.";
 
     private Messages() {
         // Utility class; do not instantiate.

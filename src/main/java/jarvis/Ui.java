@@ -119,7 +119,15 @@ public class Ui implements AutoCloseable {
                 + pluralize("task", remainingTasks) + " in the list.");
     }
 
-        /**
+    /**
+     * Prints the response after updating a task's priority.
+     */
+    public void showPriorityUpdated(Task task) {
+        System.out.println(" Noted. I've updated the priority of this task:");
+        System.out.println("  " + task);
+    }
+    
+    /**
      * Prints all tasks that match a find keyword.
      */
     public void showMatchingTasks(List<Task> matchingTasks) {

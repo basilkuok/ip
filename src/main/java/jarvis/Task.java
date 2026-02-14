@@ -14,6 +14,7 @@ public class Task {
 
     protected final String description;
     private Status status;
+    private Priority priority;
 
     /**
      * Creates a task with the given description.
@@ -22,6 +23,7 @@ public class Task {
         assert description != null : "description should not be null";
         this.description = description;
         this.status = Status.TODO;
+        this.priority = Priority.NONE;
     }
 
     /**
@@ -59,8 +61,25 @@ public class Task {
         status = Status.TODO;
     }
 
+    /**
+     * Returns the priority of this task.
+     */
+    public Priority getPriority() {
+        return priority;
+    }
+
+    /**
+     * Sets the priority of this task.
+     */
+    public void setPriority(Priority priority) {
+        this.priority = (priority == null) ? Priority.NONE : priority;
+    }
+
     @Override
     public String toString() {
-        return "[" + getStatusIcon() + "] " + description;
+        String prioritySuffix = (priority == Priority.NONE)
+                ? ""
+                : " (p:" + priority.getDisplayValue() + ")";
+        return "[" + getStatusIcon() + "] " + description + prioritySuffix;
     }
 }
