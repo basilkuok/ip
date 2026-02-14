@@ -1,5 +1,6 @@
 package jarvis;
 
+
 /**
  * Parses user commands into structured data for Jarvis.
  */
@@ -13,6 +14,7 @@ public class Parser {
         UNMARK,
         DELETE,
         FIND,
+        PRIORITY,
         TODO,
         DEADLINE,
         EVENT,
@@ -42,6 +44,8 @@ public class Parser {
             return CommandType.DELETE;
         case "find":
             return CommandType.FIND;
+        case "priority":
+            return CommandType.PRIORITY;
         case "todo":
             return CommandType.TODO;
         case "deadline":
@@ -51,6 +55,12 @@ public class Parser {
         default:
             return CommandType.UNKNOWN;
         }
+    }
+
+    /**
+     * Represents a priority update command.
+     */
+    public record PriorityUpdate(int taskNumber, Priority priority) {
     }
 
     /**
@@ -68,6 +78,25 @@ public class Parser {
         } catch (NumberFormatException exception) {
             throw new JarvisException("Please enter a valid task number.");
         }
+    }
+
+    /**
+     * Returns a parsed priority update from a command like {@code priority 2 high}.
+     */
+    public PriorityUpdate parsePriorityUpdate(String command) throws JarvisException {
+        String usageMessage = "Please use: priority <taskNumber> <low|medium|high|none>";
+        if (command.equalsIgnoreCase("priority")) {
+            throw new JarvisException(usageMessage);
+        }
+
+        String[] parts = command.trim().split("\\s+");
+        if (parts.length != 3 || !parts[0].equalsIgnoreCase("priority")) {
+            throw new JarvisException(usageMessage);
+        }
+
+        int taskNumber = parseTaskNumber(command);
+        Priority priority = Priority.parseUserInput(parts[2]);
+        return new PriorityUpdate(taskNumber, priority);
     }
 
     /**

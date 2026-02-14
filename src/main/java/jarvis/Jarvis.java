@@ -93,6 +93,9 @@ public class Jarvis {
             ui.showMatchingTasks(tasks.findByKeyword(keyword));
             return;
         }
+        case PRIORITY:
+            updatePriority(command);
+            return;
         case TODO:
             addTask(parser.parseTodo(command));
             return;
@@ -139,5 +142,13 @@ public class Jarvis {
         tasks.add(task);
         persistTasks();
         ui.showTaskAdded(task, tasks.size());
+    }
+
+    private void updatePriority(String command) throws JarvisException {
+        Parser.PriorityUpdate update = parser.parsePriorityUpdate(command);
+        Task task = tasks.get(update.taskNumber());
+        task.setPriority(update.priority());
+        persistTasks();
+        ui.showPriorityUpdated(task);
     }
 }

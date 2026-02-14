@@ -28,6 +28,9 @@ public class StorageTest {
                 LocalDateTime.of(2019, 12, 2, 14, 0), true,
                 LocalDateTime.of(2019, 12, 2, 16, 0), true);
 
+        todo.setPriority(Priority.HIGH);
+        deadline.setPriority(Priority.MEDIUM);
+        event.setPriority(Priority.LOW);
         event.markAsDone();
 
         List<Task> tasksToSave = List.of(todo, deadline, event);
@@ -39,6 +42,7 @@ public class StorageTest {
         assertTrue(loaded.get(0) instanceof Todo);
         assertEquals("borrow book", loaded.get(0).getDescription());
         assertFalse(loaded.get(0).isDone());
+        assertEquals(Priority.HIGH, loaded.get(0).getPriority());
 
         assertTrue(loaded.get(1) instanceof Deadline);
         Deadline loadedDeadline = (Deadline) loaded.get(1);
@@ -46,6 +50,7 @@ public class StorageTest {
         assertFalse(loadedDeadline.isDone());
         assertEquals(LocalDateTime.of(2019, 12, 2, 18, 0), loadedDeadline.getBy());
         assertTrue(loadedDeadline.hasTime());
+        assertEquals(Priority.MEDIUM, loadedDeadline.getPriority());
 
         assertTrue(loaded.get(2) instanceof Event);
         Event loadedEvent = (Event) loaded.get(2);
@@ -55,6 +60,7 @@ public class StorageTest {
         assertTrue(loadedEvent.hasTimeFrom());
         assertEquals(LocalDateTime.of(2019, 12, 2, 16, 0), loadedEvent.getTo());
         assertTrue(loadedEvent.hasTimeTo());
+        assertEquals(Priority.LOW, loadedEvent.getPriority());
     }
 
     @Test

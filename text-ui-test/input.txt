@@ -14,9 +14,12 @@ mark 2
 unmark 2
 mark 4
 mark 6
+priority 2 high
 list
 delete 3
+priority 2 medium
 list
 delete 1
+priority 2 none
 list
 bye

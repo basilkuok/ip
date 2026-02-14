@@ -85,6 +85,8 @@ public class JarvisGui {
             String keyword = parser.parseFindKeyword(command);
             return formatMatchingTasks(tasks.findByKeyword(keyword));
         }
+        case PRIORITY:
+            return updatePriority(command);
         case TODO:
             return addTask(parser.parseTodo(command));
         case DEADLINE:
@@ -139,6 +141,17 @@ public class JarvisGui {
         tasks.add(task);
         persistTasks();
         return formatTaskAdded(task);
+    }
+
+    private String updatePriority(String command) throws JarvisException {
+        Parser.PriorityUpdate update = parser.parsePriorityUpdate(command);
+        Task task = tasks.get(update.taskNumber());
+        task.setPriority(update.priority());
+        persistTasks();
+        return joinLines(
+                "Noted. I've updated the priority of this task:",
+                "  " + task
+        );
     }
 
     private String formatTaskAdded(Task task) {
