@@ -2,6 +2,7 @@ package jarvis;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Files;
@@ -22,14 +23,14 @@ public class StorageTest {
         Storage storage = new Storage(dataFilePath);
 
         Todo todo = new Todo("borrow book");
+        todo.setPriority(Priority.HIGH);
+
         Deadline deadline = new Deadline("return book", LocalDateTime.of(2019, 12, 2, 18, 0), true);
-        Event event = new Event(
-                "project meeting",
+        deadline.setPriority(Priority.MEDIUM);
+
+        Event event = new Event("project meeting",
                 LocalDateTime.of(2019, 12, 2, 14, 0), true,
                 LocalDateTime.of(2019, 12, 2, 16, 0), true);
-
-        todo.setPriority(Priority.HIGH);
-        deadline.setPriority(Priority.MEDIUM);
         event.setPriority(Priority.LOW);
         event.markAsDone();
 
@@ -39,28 +40,21 @@ public class StorageTest {
         List<Task> loaded = storage.loadTasks();
         assertEquals(3, loaded.size());
 
-        assertTrue(loaded.get(0) instanceof Todo);
-        assertEquals("borrow book", loaded.get(0).getDescription());
-        assertFalse(loaded.get(0).isDone());
-        assertEquals(Priority.HIGH, loaded.get(0).getPriority());
-
-        assertTrue(loaded.get(1) instanceof Deadline);
-        Deadline loadedDeadline = (Deadline) loaded.get(1);
-        assertEquals("return book", loadedDeadline.getDescription());
-        assertFalse(loadedDeadline.isDone());
-        assertEquals(LocalDateTime.of(2019, 12, 2, 18, 0), loadedDeadline.getBy());
-        assertTrue(loadedDeadline.hasTime());
-        assertEquals(Priority.MEDIUM, loadedDeadline.getPriority());
-
-        assertTrue(loaded.get(2) instanceof Event);
-        Event loadedEvent = (Event) loaded.get(2);
-        assertEquals("project meeting", loadedEvent.getDescription());
-        assertTrue(loadedEvent.isDone());
-        assertEquals(LocalDateTime.of(2019, 12, 2, 14, 0), loadedEvent.getFrom());
-        assertTrue(loadedEvent.hasTimeFrom());
-        assertEquals(LocalDateTime.of(2019, 12, 2, 16, 0), loadedEvent.getTo());
-        assertTrue(loadedEvent.hasTimeTo());
-        assertEquals(Priority.LOW, loadedEvent.getPriority());
+        assertTodo(loaded.get(0), "borrow book", false, Priority.HIGH);
+        assertDeadline(loaded.get(1),
+                "return book",
+                false,
+                LocalDateTime.of(2019, 12, 2, 18, 0),
+                true,
+                Priority.MEDIUM);
+        assertEvent(loaded.get(2),
+                "project meeting",
+                true,
+                LocalDateTime.of(2019, 12, 2, 14, 0),
+                true,
+                LocalDateTime.of(2019, 12, 2, 16, 0),
+                true,
+                Priority.LOW);
     }
 
     @Test
@@ -70,14 +64,55 @@ public class StorageTest {
 
         Files.writeString(dataFilePath, "TODO\t2\tbad\n");
 
-        try {
-            storage.loadTasks();
-        } catch (JarvisException exception) {
-            // expected
-        }
+        assertThrows(JarvisException.class, storage::loadTasks);
 
         assertFalse(Files.exists(dataFilePath));
         assertTrue(Files.exists(tempDir.resolve("Jarvis.txt.corrupted")));
     }
-}
 
+    private static Todo assertTodo(Task task, String description, boolean isDone, Priority priority) {
+        assertTrue(task instanceof Todo);
+        assertEquals(description, task.getDescription());
+        assertEquals(isDone, task.isDone());
+        assertEquals(priority, task.getPriority());
+        return (Todo) task;
+    }
+
+    private static Deadline assertDeadline(
+            Task task,
+            String description,
+            boolean isDone,
+            LocalDateTime by,
+            boolean hasTime,
+            Priority priority) {
+        assertTrue(task instanceof Deadline);
+        Deadline deadline = (Deadline) task;
+        assertEquals(description, deadline.getDescription());
+        assertEquals(isDone, deadline.isDone());
+        assertEquals(by, deadline.getBy());
+        assertEquals(hasTime, deadline.hasTime());
+        assertEquals(priority, deadline.getPriority());
+        return deadline;
+    }
+
+    private static Event assertEvent(
+            Task task,
+            String description,
+            boolean isDone,
+            LocalDateTime from,
+            boolean hasTimeFrom,
+            LocalDateTime to,
+            boolean hasTimeTo,
+            Priority priority) {
+        assertTrue(task instanceof Event);
+        Event event = (Event) task;
+        assertEquals(description, event.getDescription());
+        assertEquals(isDone, event.isDone());
+        assertEquals(from, event.getFrom());
+        assertEquals(hasTimeFrom, event.hasTimeFrom());
+        assertEquals(to, event.getTo());
+        assertEquals(hasTimeTo, event.hasTimeTo());
+        assertEquals(priority, event.getPriority());
+        return event;
+    }
+}

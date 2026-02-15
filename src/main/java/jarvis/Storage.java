@@ -94,7 +94,11 @@ public class Storage {
             }
 
             try {
-                Files.move(tempFilePath, dataFilePath, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+                Files.move(
+                        tempFilePath,
+                        dataFilePath,
+                        StandardCopyOption.REPLACE_EXISTING,
+                        StandardCopyOption.ATOMIC_MOVE);
             } catch (AtomicMoveNotSupportedException exception) {
                 Files.move(tempFilePath, dataFilePath, StandardCopyOption.REPLACE_EXISTING);
             }
@@ -102,7 +106,7 @@ public class Storage {
             throw new JarvisException("Unable to save data file: " + exception.getMessage());
         }
     }
-    
+
     /**
      * Resolves the data file path, accounting for different working directories
      * (e.g., running from project root vs. running from {@code text-ui-test/}).
@@ -122,7 +126,7 @@ public class Storage {
 
         return currentDirectory.resolve(dataFilePathFromProjectRoot);
     }
-    
+
     /**
      * Parses a single stored task line into a {@link Task}.
      *
@@ -142,56 +146,80 @@ public class Storage {
         boolean isDone = parseDoneMarker(fields[1].trim(), lineNumber);
         String description = unescape(fields[2]);
 
-        Task task;
-        switch (type) {
-        case TODO_TYPE:
-            if (fields.length != 3 && fields.length != 4) {
-                throw new JarvisException("Data file corrupted at line " + lineNumber + ": invalid TODO format.");
-            }
-            task = new Todo(description);
-            if (fields.length == 4) {
-                task.setPriority(Priority.parseStoredValue(fields[3], lineNumber));
-            }
-            break;
-        case DEADLINE_TYPE:
-            if (fields.length != 4 && fields.length != 5) {
-                throw new JarvisException("Data file corrupted at line " + lineNumber + ": invalid DEADLINE format.");
-            }
-            DateTimeParser.ParsedDateTime parsedBy =
-                    DateTimeParser.parseStoredDateTime(unescape(fields[3]), lineNumber);
-
-            task = new Deadline(description, parsedBy.getValue(), parsedBy.hasTime());
-            if (fields.length == 5) {
-                task.setPriority(Priority.parseStoredValue(fields[4], lineNumber));
-            }
-            break;
-        case EVENT_TYPE:
-            if (fields.length != 5 && fields.length != 6) {
-                throw new JarvisException("Data file corrupted at line " + lineNumber + ": invalid EVENT format.");
-            }
-            DateTimeParser.ParsedDateTime parsedFrom = DateTimeParser.parseStoredDateTime(
-                    unescape(fields[3]),
-                    lineNumber);
-            DateTimeParser.ParsedDateTime parsedTo = DateTimeParser.parseStoredDateTime(
-                    unescape(fields[4]),
-                    lineNumber);
-            task = new Event(description,
-                    parsedFrom.getValue(), parsedFrom.hasTime(),
-                    parsedTo.getValue(), parsedTo.hasTime());
-            if (fields.length == 6) {
-                task.setPriority(Priority.parseStoredValue(fields[5], lineNumber));
-            }
-            break;
-        default:
-            throw new JarvisException("Data file corrupted at line " + lineNumber + ": unknown task type.");
-        }
+        Task task = parseTaskByType(type, description, fields, lineNumber);
 
         if (isDone) {
             task.markAsDone();
         }
         return task;
     }
-    
+
+    private static Task parseTaskByType(
+            String type,
+            String description,
+            String[] fields,
+            int lineNumber) throws JarvisException {
+        switch (type) {
+        case TODO_TYPE:
+            return parseTodo(description, fields, lineNumber);
+        case DEADLINE_TYPE:
+            return parseDeadline(description, fields, lineNumber);
+        case EVENT_TYPE:
+            return parseEvent(description, fields, lineNumber);
+        default:
+            throw new JarvisException("Data file corrupted at line " + lineNumber + ": unknown task type.");
+        }
+    }
+
+    private static Task parseTodo(String description, String[] fields, int lineNumber) throws JarvisException {
+        if (fields.length != 3 && fields.length != 4) {
+            throw new JarvisException("Data file corrupted at line " + lineNumber + ": invalid TODO format.");
+        }
+
+        Task task = new Todo(description);
+        applyPriorityIfPresent(task, fields, 3, lineNumber);
+        return task;
+    }
+
+    private static Task parseDeadline(String description, String[] fields, int lineNumber) throws JarvisException {
+        if (fields.length != 4 && fields.length != 5) {
+            throw new JarvisException("Data file corrupted at line " + lineNumber + ": invalid DEADLINE format.");
+        }
+
+        DateTimeParser.ParsedDateTime parsedBy =
+                DateTimeParser.parseStoredDateTime(unescape(fields[3]), lineNumber);
+        Task task = new Deadline(description, parsedBy.getValue(), parsedBy.hasTime());
+        applyPriorityIfPresent(task, fields, 4, lineNumber);
+        return task;
+    }
+
+    private static Task parseEvent(String description, String[] fields, int lineNumber) throws JarvisException {
+        if (fields.length != 5 && fields.length != 6) {
+            throw new JarvisException("Data file corrupted at line " + lineNumber + ": invalid EVENT format.");
+        }
+
+        DateTimeParser.ParsedDateTime parsedFrom =
+                DateTimeParser.parseStoredDateTime(unescape(fields[3]), lineNumber);
+        DateTimeParser.ParsedDateTime parsedTo =
+                DateTimeParser.parseStoredDateTime(unescape(fields[4]), lineNumber);
+
+        Task task = new Event(description,
+                parsedFrom.getValue(), parsedFrom.hasTime(),
+                parsedTo.getValue(), parsedTo.hasTime());
+        applyPriorityIfPresent(task, fields, 5, lineNumber);
+        return task;
+    }
+
+    private static void applyPriorityIfPresent(
+            Task task,
+            String[] fields,
+            int priorityFieldIndex,
+            int lineNumber) throws JarvisException {
+        if (fields.length == priorityFieldIndex + 1) {
+            task.setPriority(Priority.parseStoredValue(fields[priorityFieldIndex], lineNumber));
+        }
+    }
+
     /**
      * Parses the stored done marker.
      *
@@ -295,7 +323,7 @@ public class Storage {
         }
         return builder.toString();
     }
-    
+
     /**
      * Moves a corrupted data file out of the way so Jarvis can start with a clean slate.
      */
@@ -311,7 +339,7 @@ public class Storage {
             // Best-effort backup only.
         }
     }
-    
+
     /**
      * Returns a backup file path that does not already exist.
      */
