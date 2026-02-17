@@ -5,6 +5,8 @@ package jarvis;
  * Parses user commands into structured data for Jarvis.
  */
 public class Parser {
+    private static final String VALID_TASK_NUMBER_MESSAGE = "Please enter a valid task number.";
+
     /**
      * Types of supported commands.
      */
@@ -70,14 +72,37 @@ public class Parser {
         assert command != null : "command should not be null";
         String[] parts = command.split("\\s+");
         if (parts.length < 2) {
-            throw new JarvisException("Please enter a valid task number.");
+            throw new JarvisException(VALID_TASK_NUMBER_MESSAGE);
         }
 
         try {
             return Integer.parseInt(parts[1]);
         } catch (NumberFormatException exception) {
-            throw new JarvisException("Please enter a valid task number.");
+            throw new JarvisException(VALID_TASK_NUMBER_MESSAGE);
         }
+    }
+
+    /**
+     * Returns the task number for commands like {@code mark 2}, disallowing extra arguments.
+     */
+    public int parseSingleIndexCommand(String command, String keyword) throws JarvisException {
+        String usageMessage = "Please use: " + keyword + " <taskNumber>";
+        String[] parts = command.trim().split("\\s+");
+        if (parts.length != 2 || !parts[0].equalsIgnoreCase(keyword)) {
+            throw new JarvisException(usageMessage);
+        }
+
+        int taskNumber;
+        try {
+            taskNumber = Integer.parseInt(parts[1]);
+        } catch (NumberFormatException exception) {
+            throw new JarvisException(VALID_TASK_NUMBER_MESSAGE);
+        }
+
+        if (taskNumber < 1) {
+            throw new JarvisException(VALID_TASK_NUMBER_MESSAGE);
+        }
+        return taskNumber;
     }
 
     /**
@@ -152,13 +177,13 @@ public class Parser {
         }
 
         String payload = command.substring("deadline ".length()).trim();
-        int byIndex = payload.indexOf(" /by ");
-        if (byIndex == -1) {
+        String[] parts = payload.split("\\s+/by\\s+", -1);
+        if (parts.length != 2) {
             throw new JarvisException(usageMessage);
         }
 
-        String description = payload.substring(0, byIndex).trim();
-        String byText = payload.substring(byIndex + " /by ".length()).trim();
+        String description = parts[0].trim();
+        String byText = parts[1].trim();
         if (description.isEmpty() || byText.isEmpty()) {
             throw new JarvisException(usageMessage);
         }
@@ -181,21 +206,33 @@ public class Parser {
         }
 
         String payload = command.substring("event ".length()).trim();
-        int fromIndex = payload.indexOf(" /from ");
-        int toIndex = payload.indexOf(" /to ");
-        if (fromIndex == -1 || toIndex == -1 || fromIndex > toIndex) {
+        int toIndex = payload.toLowerCase().indexOf(" /to ");
+        if (toIndex == -1) {
             throw new JarvisException(usageMessage);
         }
 
-        String description = payload.substring(0, fromIndex).trim();
-        String fromText = payload.substring(fromIndex + " /from ".length(), toIndex).trim();
         String toText = payload.substring(toIndex + " /to ".length()).trim();
+        if (toText.toLowerCase().contains(" /to ")) {
+            throw new JarvisException(usageMessage);
+        }
+
+        String beforeTo = payload.substring(0, toIndex).trim();
+        String[] beforeToParts = beforeTo.split("\\s+/from\\s+", -1);
+        if (beforeToParts.length != 2) {
+            throw new JarvisException(usageMessage);
+        }
+
+        String description = beforeToParts[0].trim();
+        String fromText = beforeToParts[1].trim();
         if (description.isEmpty() || fromText.isEmpty() || toText.isEmpty()) {
             throw new JarvisException(usageMessage);
         }
 
         DateTimeParser.ParsedDateTime from = DateTimeParser.parseUserDateTime(fromText, usageMessage);
         DateTimeParser.ParsedDateTime to = DateTimeParser.parseUserDateTime(toText, usageMessage);
+        if (!from.getValue().isBefore(to.getValue())) {
+            throw new JarvisException("Event start must be earlier than end.\n" + usageMessage);
+        }
         return new Event(description, from.getValue(), from.hasTime(), to.getValue(), to.hasTime());
     }
 }
