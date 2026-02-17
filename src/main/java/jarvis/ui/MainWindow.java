@@ -47,13 +47,19 @@ public class MainWindow {
     @FXML
     private void handleUserInput() {
         String userText = userInput.getText();
-        String JarvisText = Jarvis.getResponse(userText);
+        JarvisGui.ResponseResult response = Jarvis.getResponseWithStatus(userText);
 
-        dialogContainer.getChildren().addAll(
-                DialogBox.getUserDialog(userText, userImage),
-                DialogBox.getJarvisDialog(JarvisText, JarvisImage)
+        if (userText != null && !userText.isBlank()) {
+            dialogContainer.getChildren().add(DialogBox.getUserDialog(userText, userImage));
+        }
+
+        dialogContainer.getChildren().add(
+                response.isError()
+                        ? DialogBox.getErrorDialog(response.text(), JarvisImage)
+                        : DialogBox.getJarvisDialog(response.text(), JarvisImage)
         );
         userInput.clear();
+        userInput.requestFocus();
 
         if (Jarvis.shouldExit(userText)) {
             Platform.exit();

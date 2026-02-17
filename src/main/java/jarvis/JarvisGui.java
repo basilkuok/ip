@@ -54,19 +54,29 @@ public class JarvisGui {
      * @return Response string to display in the GUI.
      */
     public String getResponse(String input) {
+        return getResponseWithStatus(input).text();
+    }
+
+    /**
+     * Returns Jarvis's response to a user input line, along with whether the response is an error.
+     *
+     * @param input User input.
+     * @return Response result containing the text and an error flag.
+     */
+    public ResponseResult getResponseWithStatus(String input) {
         String trimmedInput = (input == null) ? "" : input.trim();
         if (trimmedInput.isEmpty()) {
-            return Messages.EMPTY_COMMAND_MESSAGE;
+            return ResponseResult.error(Messages.EMPTY_COMMAND_MESSAGE);
         }
 
         if (trimmedInput.equalsIgnoreCase("bye")) {
-            return "Bye. Hope to see you again soon!";
+            return ResponseResult.ok("Bye. Hope to see you again soon!");
         }
 
         try {
-            return executeCommand(trimmedInput);
+            return ResponseResult.ok(executeCommand(trimmedInput));
         } catch (JarvisException exception) {
-            return exception.getMessage();
+            return ResponseResult.error(exception.getMessage());
         }
     }
 
@@ -193,5 +203,18 @@ public class JarvisGui {
 
     private static String joinLines(String... lines) {
         return String.join("\n", lines);
+    }
+
+    /**
+     * Response text and whether it represents an error.
+     */
+    public record ResponseResult(String text, boolean isError) {
+        public static ResponseResult ok(String text) {
+            return new ResponseResult(text, false);
+        }
+
+        public static ResponseResult error(String text) {
+            return new ResponseResult(text, true);
+        }
     }
 }

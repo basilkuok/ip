@@ -1,0 +1,38 @@
+.scroll-pane,
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+.dialog-box {
+    -fx-padding: 2 0 2 0;
+}
+
+.bubble {
+    -fx-padding: 8 10 8 10;
+    -fx-background-radius: 12;
+}
+
+.bubble Text {
+    -fx-font-size: 13px;
+    -fx-fill: #111827;
+}
+
+.user-bubble {
+    -fx-background-color: #dbeafe;
+}
+
+.bot-bubble {
+    -fx-background-color: #f3f4f6;
+}
+
+.error-bubble {
+    -fx-background-color: #fee2e2;
+}
+
+.error-bubble Text {
+    -fx-fill: #991b1b;
+}
+
+.priority-text {
+    -fx-fill: #dc2626;
+}
