@@ -114,7 +114,7 @@ public class JarvisGui {
     }
 
     private String markTask(String command) throws JarvisException {
-        int taskNumber = parser.parseTaskNumber(command);
+        int taskNumber = parser.parseSingleIndexCommand(command, "mark");
         Task task = tasks.get(taskNumber);
         task.markAsDone();
         persistTasks();
@@ -125,7 +125,7 @@ public class JarvisGui {
     }
 
     private String unmarkTask(String command) throws JarvisException {
-        int taskNumber = parser.parseTaskNumber(command);
+        int taskNumber = parser.parseSingleIndexCommand(command, "unmark");
         Task task = tasks.get(taskNumber);
         task.markAsNotDone();
         persistTasks();
@@ -136,7 +136,7 @@ public class JarvisGui {
     }
 
     private String deleteTask(String command) throws JarvisException {
-        int taskNumber = parser.parseTaskNumber(command);
+        int taskNumber = parser.parseSingleIndexCommand(command, "delete");
         Task removed = tasks.remove(taskNumber);
         persistTasks();
         int remainingTasks = tasks.size();
