@@ -70,6 +70,52 @@ public class StorageTest {
         assertTrue(Files.exists(tempDir.resolve("Jarvis.txt.corrupted")));
     }
 
+    @Test
+    public void loadTasks_legacyFormatWithoutPriority_defaultsToNone() throws Exception {
+        Path dataFilePath = tempDir.resolve("Jarvis.txt");
+        Storage storage = new Storage(dataFilePath);
+
+        Files.writeString(dataFilePath, String.join("\n",
+                "TODO\t0\tborrow book",
+                "DEADLINE\t0\treturn book\t2019-12-02 18:00",
+                "EVENT\t1\tproject meeting\t2019-12-02 14:00\t2019-12-02 16:00",
+                ""));
+
+        List<Task> loaded = storage.loadTasks();
+        assertEquals(3, loaded.size());
+
+        assertTodo(loaded.get(0), "borrow book", false, Priority.NONE);
+        assertDeadline(loaded.get(1),
+                "return book",
+                false,
+                LocalDateTime.of(2019, 12, 2, 18, 0),
+                true,
+                Priority.NONE);
+        assertEvent(loaded.get(2),
+                "project meeting",
+                true,
+                LocalDateTime.of(2019, 12, 2, 14, 0),
+                true,
+                LocalDateTime.of(2019, 12, 2, 16, 0),
+                true,
+                Priority.NONE);
+    }
+
+    @Test
+    public void saveAndLoad_descriptionWithEscapes_roundTripPreservesDescription() throws Exception {
+        Path dataFilePath = tempDir.resolve("Jarvis.txt");
+        Storage storage = new Storage(dataFilePath);
+
+        String description = "line1\tline2\\line3\nline4";
+        Todo todo = new Todo(description);
+
+        storage.saveTasks(List.of(todo));
+        List<Task> loaded = storage.loadTasks();
+
+        assertEquals(1, loaded.size());
+        assertEquals(description, loaded.get(0).getDescription());
+    }
+
     private static Todo assertTodo(Task task, String description, boolean isDone, Priority priority) {
         assertTrue(task instanceof Todo);
         assertEquals(description, task.getDescription());
