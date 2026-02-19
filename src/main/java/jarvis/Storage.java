@@ -56,10 +56,12 @@ public class Storage {
                 tasks.add(parseTaskLine(line, lineNumber));
             }
             return tasks;
-        } catch (JarvisException exception) {
+        } 
+        catch (JarvisException exception) {
             backupCorruptedDataFileIfPossible(dataFilePath);
             throw exception;
-        } catch (IOException exception) {
+        } 
+        catch (IOException exception) {
             throw new JarvisException("Unable to read data file: " + exception.getMessage());
         }
     }
@@ -99,10 +101,12 @@ public class Storage {
                         dataFilePath,
                         StandardCopyOption.REPLACE_EXISTING,
                         StandardCopyOption.ATOMIC_MOVE);
-            } catch (AtomicMoveNotSupportedException exception) {
+            } 
+            catch (AtomicMoveNotSupportedException exception) {
                 Files.move(tempFilePath, dataFilePath, StandardCopyOption.REPLACE_EXISTING);
             }
-        } catch (IOException exception) {
+        } 
+        catch (IOException exception) {
             throw new JarvisException("Unable to save data file: " + exception.getMessage());
         }
     }
@@ -335,7 +339,8 @@ public class Storage {
         try {
             Path backupPath = nextAvailableBackupPath(dataFilePath);
             Files.move(dataFilePath, backupPath);
-        } catch (IOException ignored) {
+        } 
+        catch (IOException ignored) {
             // Best-effort backup only.
         }
     }

@@ -77,7 +77,8 @@ public class Parser {
 
         try {
             return Integer.parseInt(parts[1]);
-        } catch (NumberFormatException exception) {
+        } 
+        catch (NumberFormatException exception) {
             throw new JarvisException(VALID_TASK_NUMBER_MESSAGE);
         }
     }
@@ -95,7 +96,8 @@ public class Parser {
         int taskNumber;
         try {
             taskNumber = Integer.parseInt(parts[1]);
-        } catch (NumberFormatException exception) {
+        } 
+        catch (NumberFormatException exception) {
             throw new JarvisException(VALID_TASK_NUMBER_MESSAGE);
         }
 

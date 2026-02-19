@@ -38,7 +38,8 @@ public class Main extends Application {
 
             fxmlLoader.<MainWindow>getController().setJarvis(jarvis);
             stage.show();
-        } catch (IOException e) {
+        } 
+        catch (IOException e) {
             throw new IllegalStateException("Unable to load MainWindow.fxml.", e);
         }
     }
