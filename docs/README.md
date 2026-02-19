@@ -6,22 +6,41 @@ to disk and loads them the next time you start the chat again.
 
 ![Jarvis GUI screenshot](Ui.png)
 
-## Quick start
+## Quick start to run Jarvis
 
-### Run Jarvis
+### Using JAR file (recommended)
 
-If you are using the GUI:
+Ensure you have **Java 17**:
 
 ```bash
-./gradlew run
+java -version
 ```
 
-If you are using the text UI (terminal):
+Run:
 
-- Run `src/main/java/jarvis/Jarvis.java` from your IDE, then type commands into
+```bash
+java -jar Jarvis.jar
+```
+
+### Using Gradle
+
+```bash
+# Build the project
+./gradlew build
+
+# Run the application
+./gradlew run
+
+# Create JAR file (fat JAR with JavaFX bundled)
+./gradlew clean shadowJar
+```
+
+### Using the terminal command
+
+- Run `src/main/java/astra/Jarvis.java` from your IDE, then type commands into
   standard input.
 
-To exit:
+Once inside the chat, to exit, type:
 
 ```text
 bye
