@@ -60,7 +60,8 @@ public class DateTimeParser {
             try {
                 LocalDateTime value = LocalDateTime.parse(trimmed, dateTimeFormatter);
                 return new ParsedDateTime(value, true);
-            } catch (DateTimeParseException ignored) {
+            } 
+            catch (DateTimeParseException ignored) {
                 // Try next format.
             }
         }
@@ -69,7 +70,8 @@ public class DateTimeParser {
             try {
                 LocalDate value = LocalDate.parse(trimmed, dateFormatter);
                 return new ParsedDateTime(value.atStartOfDay(), false);
-            } catch (DateTimeParseException ignored) {
+            } 
+            catch (DateTimeParseException ignored) {
                 // Try next format.
             }
         }
@@ -92,7 +94,8 @@ public class DateTimeParser {
         for (DateTimeFormatter dateTimeFormatter : STORAGE_DATE_TIME_FORMATTERS) {
             try {
                 return new ParsedDateTime(LocalDateTime.parse(trimmed, dateTimeFormatter), true);
-            } catch (DateTimeParseException ignored) {
+            } 
+            catch (DateTimeParseException ignored) {
                 // Try next format.
             }
         }
@@ -100,7 +103,8 @@ public class DateTimeParser {
         for (DateTimeFormatter dateFormatter : STORAGE_DATE_FORMATTERS) {
             try {
                 return new ParsedDateTime(LocalDate.parse(trimmed, dateFormatter).atStartOfDay(), false);
-            } catch (DateTimeParseException ignored) {
+            } 
+            catch (DateTimeParseException ignored) {
                 // Try next format.
             }
         }

@@ -22,7 +22,8 @@ public class Jarvis {
         TaskList loadedTasks;
         try {
             loadedTasks = new TaskList(storage.loadTasks());
-        } catch (JarvisException exception) {
+        } 
+        catch (JarvisException exception) {
             ui.showLoadingError(exception.getMessage());
             loadedTasks = new TaskList();
         }
@@ -47,9 +48,11 @@ public class Jarvis {
                 ui.showLine();
                 try {
                     executeCommand(trimmedCommand);
-                } catch (JarvisException exception) {
+                } 
+                catch (JarvisException exception) {
                     ui.showError(exception.getMessage());
-                } finally {
+                } 
+                finally {
                     ui.showLine();
                 }
             }

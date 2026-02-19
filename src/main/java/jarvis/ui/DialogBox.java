@@ -36,7 +36,8 @@ public class DialogBox extends HBox {
             fxmlLoader.setRoot(this);
             fxmlLoader.setController(this);
             fxmlLoader.load();
-        } catch (IOException e) {
+        } 
+        catch (IOException e) {
             throw new IllegalStateException("Unable to load DialogBox.fxml.", e);
         }
 

@@ -23,7 +23,8 @@ public class JarvisGui {
         TaskList loadedTasks;
         try {
             loadedTasks = new TaskList(storage.loadTasks());
-        } catch (JarvisException exception) {
+        } 
+        catch (JarvisException exception) {
             loadedTasks = new TaskList();
         }
         tasks = loadedTasks;
@@ -75,7 +76,8 @@ public class JarvisGui {
 
         try {
             return ResponseResult.ok(executeCommand(trimmedInput));
-        } catch (JarvisException exception) {
+        } 
+        catch (JarvisException exception) {
             return ResponseResult.error(exception.getMessage());
         }
     }
